@@ -1,0 +1,66 @@
+@import './styles/variables.scss';
+@import './styles/typography.scss';
+@import './styles/utilities.scss';
+
+.navigation {
+  align-items: center;
+  display: flex;
+  height: 15vh;
+  flex-direction: column;
+  padding-top: 50px;
+  &-menu {
+    align-items: center;
+    width: 85vw;
+    display: flex;
+    height: 85px;
+  }
+  &-menulist {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
+  &-menuitem {
+    font: $text-menu;
+    font-size: 24px;
+  }
+}
+
+.navigation-menuitem--three {
+  @extend .navigation-menuitem;
+  &:hover { color: $purple; }
+}
+.navigation-menuitem--D3 {
+  @extend .navigation-menuitem;
+  &:hover { color: $indigo; }
+}
+.navigation-menuitem--clay {
+  @extend .navigation-menuitem;
+  &:hover { color: $green; }
+}
+
+// GRANIM
+.logo-liquidgradient-wrapper {
+  position: relative;
+  width: 240px;
+  height: 35px;
+}
+
+.logo-liquidgradient-wrapper canvas,
+.logo-liquidgradient-wrapper .logo-liquidgradient-mask {
+  display: block;
+  width: 240px;
+  height: 35px;
+}
+
+.logo-liquidgradient-wrapper .logo-liquidgradient-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: 240px;
+  background-image: url("../assets/img/frontline-logo.png");
+  text-indent: -9999px;
+}
+
+router-outlet {
+  height: 85vh;
+}

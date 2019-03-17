@@ -1,0 +1,21 @@
+
+$breakpoints: (
+  'tiny': (min-width: 480px),
+  'small': (min-width: 640px),
+  'medium': (min-width: 768px),
+  'large': (min-width: 1024px),
+  'huge': (min-width: 1200px),
+);
+
+// colors
+$primary-color: #333;
+$background-color: #F5F5F5;
+
+$teal: #004D40;
+$cyan: #006064;
+$indigo: #1A237E;
+$deepPurple: #311B92;
+$purple: #6A1B9A;
+$pink: #880E4F;
+$green: #1B5E20;
+$lightgreen: #33691E;
