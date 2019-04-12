@@ -20,7 +20,15 @@ const routes: Routes = [
     component: ClayComponent
   },
   {
-    path: '',
+    path: 'default-state',
+    redirectTo: 'home'
+  },
+  {
+    path: '**',
+    redirectTo: 'home'
+  },
+  {
+    path: 'home',
     component: HomeComponent
   }
 ];

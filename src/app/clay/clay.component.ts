@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 
-import * as clay from 'claygl';
+import * as clay from './claygl.min';
 
 @Component({
   selector: 'app-clay',

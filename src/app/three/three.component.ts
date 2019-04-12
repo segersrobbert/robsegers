@@ -1,6 +1,6 @@
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_draggablecubes.html
 
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import * as THREE from 'three';
 
 import { DragControls } from './three-lib/three.dragcontrols';
@@ -12,7 +12,7 @@ import { Stats } from './three-lib/stats.min';
   templateUrl: './three.component.html',
   styleUrls: ['./three.component.scss']
 })
-export class ThreeComponent implements AfterViewInit {
+export class ThreeComponent implements AfterViewInit, OnDestroy {
 
   container;
   stats;
@@ -27,6 +27,10 @@ export class ThreeComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.init();
     this.animate();
+  }
+
+  ngOnDestroy() {
+    document.body.removeChild(this.container);
   }
 
   init() {

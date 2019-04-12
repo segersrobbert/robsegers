@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 
 import * as Granim from 'Granim';
 
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
