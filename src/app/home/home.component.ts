@@ -7,10 +7,10 @@ import Chart from 'chart.js';
 import {
   dataSet_1946_1980,
   dataSet_1980_2014,
-  barChartData as distEcoGrowthData,
-  chartOptions as distEcoGrowthOptions
+  incomeGrowthData,
+  chartOptions as incomeGrowthOptions
 } from './data/incomeGrowth';
-import { incomeShare } from './data/incomeShare';
+import { incomeShareData, incomeShareOptions, config } from './data/incomeShare';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +19,7 @@ import { incomeShare } from './data/incomeShare';
 })
 export class HomeComponent implements AfterViewInit {
 
-  distEcoGrowthChart: Chart;
+  incomeGrowthChart: Chart;
   incomeShareChart: Chart;
 
   constructor() { }
@@ -27,24 +27,33 @@ export class HomeComponent implements AfterViewInit {
   ngAfterViewInit() {
 
     const ctx = document.getElementById('homeChart');
-    this.distEcoGrowthChart = new Chart(ctx, {
-      type: 'bar',
-      data: distEcoGrowthData,
-      options: distEcoGrowthOptions
-    });
-    this.incomeShareChart = new Chart(ctx, {
-      type: 'line',
-      data: incomeShare,
-      options: distEcoGrowthOptions
-    });
+    this.incomeGrowthChart = new Chart(
+      ctx,
+      // {
+      //   type: 'bar',
+      //   data: incomeGrowthData,
+      //   options: incomeGrowthOptions
+      // },
+      config
+      // {
+      //   type: 'line',
+      //   data: incomeShareData,
+      //   options: incomeShareOptions
+      // }
+    );
+    // this.incomeShareChart = new Chart(ctx, {
+    //   type: 'line',
+    //   data: incomeShareData,
+    //   options: distEcoGrowthOptions
+    // });
   }
 
   toggleEcoGrowthTime() {
-    if (this.distEcoGrowthChart.data.datasets === dataSet_1980_2014) {
-      this.distEcoGrowthChart.data.datasets = dataSet_1946_1980;
+    if (this.incomeGrowthChart.data.datasets === dataSet_1980_2014) {
+      this.incomeGrowthChart.data.datasets = dataSet_1946_1980;
     } else {
-      this.distEcoGrowthChart.data.datasets = dataSet_1980_2014;
+      this.incomeGrowthChart.data.datasets = dataSet_1980_2014;
     }
-    this.distEcoGrowthChart.update();
+    this.incomeGrowthChart.update();
   }
 }

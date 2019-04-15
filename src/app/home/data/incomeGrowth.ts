@@ -1,13 +1,13 @@
 // http://gabriel-zucman.eu/usdina/
 
 const dataSet_1946_1980 = [
-  {
-    label: 'Pretax income growth (1946–1980)',
-    backgroundColor: 'lightgreen',
-    borderColor: 'green',
-    borderWidth: 1,
-    data: [109, 101, 105, 79, 47, 54, 76, 57]
-  },
+  // {
+  //   label: 'Pretax income growth (1946–1980)',
+  //   backgroundColor: 'lightgreen',
+  //   borderColor: 'green',
+  //   borderWidth: 1,
+  //   data: [109, 101, 105, 79, 47, 54, 76, 57]
+  // },
   {
     label: 'Posttax income growth (1946–1980)',
     backgroundColor: 'lightblue',
@@ -17,15 +17,15 @@ const dataSet_1946_1980 = [
   }
 ];
 const dataSet_1980_2014 = [
+  // {
+  //   label: 'Pretax income growth (1980–2014)',
+  //   backgroundColor: 'lightgreen',
+  //   borderColor: 'green',
+  //   borderWidth: 1,
+  //   data: [-25, 7, 42, 121, 204, 320, 453, 636]
+  // },
   {
-    label: 'Pretax income growth (1980–2014)',
-    backgroundColor: 'lightgreen',
-    borderColor: 'green',
-    borderWidth: 1,
-    data: [-25, 7, 42, 121, 204, 320, 453, 636]
-  },
-  {
-    label: 'Posttax income growth (1980–2014)',
+    label: 'Income growth (posttax, 1980–2014)',
     backgroundColor: 'lightblue',
     borderColor: 'blue',
     borderWidth: 1,
@@ -33,9 +33,9 @@ const dataSet_1980_2014 = [
   }
 ];
 
-const barChartData = {
+const incomeGrowthData = {
   labels: ['p0 - p20', 'p20 - p50', 'p50 - p90', 'p90 - p100', 'top 1%', 'top 0.1%', 'top 0.01%', 'top 0.001%'],
-  datasets: dataSet_1946_1980
+  datasets: dataSet_1980_2014
 };
 
 const chartOptions = {
@@ -43,7 +43,7 @@ const chartOptions = {
   legend: { position: 'top' },
   title: {
     display: true,
-    text: 'The Distribution of Economic Growth in the United States post WWII'
+    text: 'Income growth in the United States post WWII'
   },
   scales: {
     yAxes: [{
@@ -57,6 +57,6 @@ const chartOptions = {
 export {
   dataSet_1946_1980,
   dataSet_1980_2014,
-  barChartData,
+  incomeGrowthData,
   chartOptions
 };
