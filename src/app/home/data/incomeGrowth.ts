@@ -38,7 +38,7 @@ const incomeGrowthData = {
   datasets: dataSet_1980_2014
 };
 
-const chartOptions = {
+const incomeGrowthOptions = {
   responsive: true,
   legend: { position: 'top' },
   title: {
@@ -54,9 +54,11 @@ const chartOptions = {
   }
 };
 
-export {
-  dataSet_1946_1980,
-  dataSet_1980_2014,
-  incomeGrowthData,
-  chartOptions
+const incomeGrowthConfig =       {
+  type: 'bar',
+  data: incomeGrowthData,
+  options: incomeGrowthOptions
 };
+
+export { incomeGrowthConfig };
+

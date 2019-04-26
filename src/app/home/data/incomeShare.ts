@@ -93,7 +93,7 @@ const incomeShareConfig = {
 
 
 export {
-  incomeShareConfig as config,
+  incomeShareConfig,
   incomeShareData,
   incomeShareOptions,
   incomeShareChart,
