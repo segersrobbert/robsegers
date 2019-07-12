@@ -40,6 +40,7 @@ const incomeGrowthData = {
 
 const incomeGrowthOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   legend: { position: 'top' },
   title: {
     display: true,
