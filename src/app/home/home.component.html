@@ -1,7 +1,29 @@
 <div>
+
   <div>
-    <button (click)="showIncomeGrowthGraph()">Income growth</button>
-    <button (click)="showIncomeShareGraph()">Income share</button>
+    <nav class="subnavigation-menu">
+      <ul class="subnavigation-menulist">
+        <li>
+          <a (click)="showIncomeGrowthGraph()"
+            class="subnavigation-menuitem pointer">Income growth</a>
+        </li>
+        <li>
+          <a (click)="showIncomeShareGraph()"
+            class="subnavigation-menuitem pointer">Income share</a>
+        </li>
+        <li>
+          <a (click)="setM1Config()"
+            class="subnavigation-menuitem pointer">Money supply</a>
+        </li>
+      </ul>
+    </nav>
   </div>
-  <canvas id="homeChart" width="400" height="400"></canvas>
+
+  <div>
+    <router-outlet></router-outlet>
+  </div>
+
+  <div>
+    <canvas id="homeChart" width="600" height="600"></canvas>
+  </div>
 </div>

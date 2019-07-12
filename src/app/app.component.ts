@@ -34,9 +34,8 @@ export class AppComponent implements AfterViewInit {
       opacity: [1, 1],
       states: {
         'default-state': { gradients: [[teal, cyan]], loop: false, },
-        'three': { gradients: [[purple, pink]], loop: false, },
-        'D3': { gradients: [[indigo, deepPurple]], loop: false, },
-        'clay': { gradients: [[green, lightgreen]], loop: false, },
+        'thefalloffiat': { gradients: [[indigo, deepPurple]], loop: false, },
+        'playground': { gradients: [[green, lightgreen]], loop: false, },
       }
     });
   }

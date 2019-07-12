@@ -2,35 +2,44 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from './home/home.component';
+import { PlaygroundComponent } from './playground/playground.component';
+import { ThreeComponent } from './three/three.component';
 import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
-import { ThreeComponent } from './three/three.component';
 
 const routes: Routes = [
   {
-    path: 'three',
-    component: ThreeComponent
+    path: '',
+    redirectTo: 'thefalloffiat',
+    pathMatch: 'full'
   },
   {
-    path: 'D3',
-    component: D3Component
+    path: 'thefalloffiat',
+    component: HomeComponent
   },
   {
-    path: 'clay',
-    component: ClayComponent
-  },
-  {
-    path: 'default-state',
-    redirectTo: 'home'
+    path: 'playground',
+    component: PlaygroundComponent,
+    children: [
+      { path: '', redirectTo: 'three', pathMatch: 'full' },
+      {
+        path: 'three',
+        component: ThreeComponent,
+      },
+      {
+        path: 'claygl',
+        component: ClayComponent,
+      },
+      {
+        path: 'd3',
+        component: D3Component,
+      }
+    ]
   },
   {
     path: '**',
     redirectTo: 'home'
   },
-  {
-    path: 'home',
-    component: HomeComponent
-  }
 ];
 
 @NgModule({

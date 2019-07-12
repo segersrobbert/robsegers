@@ -7,6 +7,7 @@ import { HomeComponent } from './home/home.component';
 import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
 import { ThreeComponent } from './three/three.component';
+import { PlaygroundComponent } from './playground/playground.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { ThreeComponent } from './three/three.component';
     HomeComponent,
     ClayComponent,
     D3Component,
-    ThreeComponent
+    ThreeComponent,
+    PlaygroundComponent
   ],
   imports: [
     BrowserModule,
