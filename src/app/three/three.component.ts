@@ -35,6 +35,7 @@ export class ThreeComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     document.body.removeChild(this.container);
+    window.removeEventListener('resize', this.onWindowResize, false);
   }
 
   init() {
