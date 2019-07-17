@@ -7,6 +7,40 @@ body {
   background-color: #F5F5F5;
   height: 100vh;
   width: 100vw;
+  font-family: 'norwester';
+}
+
+.flex { display: flex; }
+.column { flex-direction: column; }
+
+.block { display: block; }
+
+.text-center { text-align: center; }
+
+.margin-top-m {
+  margin-top: 25px;
+}
+
+.label--source {
+  font-style: italic;
+}
+.label--contributors {
+  font-style: italic;
+}
+
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 28px;
+}
+h3 {
+  font-size: 24px;
+}
+
+a {
+  text-decoration: none;
+  color: black;
 }
 
 .subnavigation {
