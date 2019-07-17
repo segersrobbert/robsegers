@@ -40,6 +40,7 @@ const m1Data = {
 
 const m1Options = {
   responsive: true,
+  maintainAspectRatio: false,
   legend: { position: 'top' },
   title: {
     display: true,

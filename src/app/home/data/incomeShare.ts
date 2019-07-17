@@ -59,6 +59,7 @@ const incomeShareChart = {
 
 const incomeShareOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   title: { display: true, text: 'Income share' },
   tooltips: { mode: 'index', intersect: false },
   hover: { mode: 'nearest', intersect: true },
