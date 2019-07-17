@@ -8,7 +8,7 @@ import * as d3 from 'd3';
 })
 export class D3Component implements AfterViewInit {
 
-  @ViewChild('d3content') d3content: ElementRef;
+  @ViewChild('d3content', { static: true }) d3content: ElementRef;
 
   constructor() { }
 

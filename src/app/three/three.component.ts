@@ -1,11 +1,15 @@
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_draggablecubes.html
 
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import * as THREE from 'three';
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy
+} from '@angular/core';
 
-import { DragControls } from './three-lib/three.dragcontrols';
-import { TrackballControls } from './three-lib/three.trackballcontrolls';
-import { Stats } from './three-lib/stats.min';
+import * as THREE from 'three';
+import threeDragcontrols from 'three-dragcontrols';
+import threeTrackballcontrols from 'three-trackballcontrols';
+import { Stats } from './stats.min';
 
 @Component({
   selector: 'app-three',
@@ -38,7 +42,7 @@ export class ThreeComponent implements AfterViewInit, OnDestroy {
     document.body.appendChild(this.container);
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 5000);
     this.camera.position.z = 1000;
-    this.controls = new TrackballControls(this.camera);
+    this.controls = new threeTrackballcontrols(this.camera);
     this.controls.rotateSpeed = 1.0;
     this.controls.zoomSpeed = 1.2;
     this.controls.panSpeed = 0.8;
@@ -81,7 +85,7 @@ export class ThreeComponent implements AfterViewInit, OnDestroy {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.container.appendChild(this.renderer.domElement);
-    const dragControls = new DragControls(this.objects, this.camera, this.renderer.domElement);
+    const dragControls = new threeDragcontrols(this.objects, this.camera, this.renderer.domElement);
     dragControls.addEventListener('dragstart', () => {
       this.controls.enabled = false;
     });
