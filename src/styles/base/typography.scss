@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Mukta+Malar|Open+Sans');
-@import './variables.scss';
+@import 'abstracts/variables.scss';
 
 @font-face {
   font-family: 'norwester';
@@ -18,7 +18,26 @@ $text-menu: 24px/28px $font-menu;
 $text-main: 16px/24px $font-main;
 $text-title-main: 45px/48px $font-sub;
 
+
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 28px;
+}
+h3 {
+  font-size: 24px;
+}
+
+
 a {
   text-decoration: none;
   color: $primary-color;
+}
+
+.label--source {
+  font-style: italic;
+}
+.label--contributors {
+  font-style: italic;
 }

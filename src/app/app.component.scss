@@ -1,6 +1,6 @@
-@import './styles/variables.scss';
-@import './styles/typography.scss';
-@import './styles/utilities.scss';
+@import 'abstracts/variables.scss';
+@import 'abstracts/utilities.scss';
+@import 'base/typography.scss';
 
 .navigation {
   align-items: center;
