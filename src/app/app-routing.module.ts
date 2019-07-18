@@ -8,6 +8,7 @@ import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
 import { GrowthDistributionComponent } from './home/growth-distribution/growth-distribution.component';
 import { MoneySupplyComponent } from './home/money-supply/money-supply.component';
+import { IncomeShareComponent } from './home/income-share/income-share.component';
 
 const routes: Routes = [
   {
@@ -29,7 +30,7 @@ const routes: Routes = [
       },
       {
         path: 'incomeShare',
-        component: GrowthDistributionComponent,
+        component: IncomeShareComponent,
       }
     ]
   },
