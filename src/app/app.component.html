@@ -8,16 +8,14 @@
   </div>
   <nav class="navigation-menu">
     <ul class="navigation-menulist">
-      <!-- <li>
-        <a (click)="goTo('three')"
-           class="navigation-menuitem--three pointer">Three</a>
-      </li> -->
       <li>
-        <a (click)="goTo('thefalloffiat')"
+        <a (click)="changeHeaderState('thefalloffiat')"
+           routerLink="thefalloffiat/growthDistribution"
            class="navigation-menuitem--D3 pointer">The fall of fiat</a>
       </li>
       <li>
-        <a (click)="goTo('playground')"
+        <a (click)="changeHeaderState('playground')"
+           routerLink="playground"
            class="navigation-menuitem--clay pointer">Playground</a>
       </li>
     </ul>

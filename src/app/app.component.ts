@@ -13,8 +13,9 @@ export class AppComponent implements AfterViewInit {
   granimInstance: Granim;
 
   constructor(
-    private router: Router
-  ) {
+
+    ) {
+
   }
 
   ngAfterViewInit() {
@@ -40,8 +41,7 @@ export class AppComponent implements AfterViewInit {
     });
   }
 
-  goTo(state: string) {
-    this.router.navigate([state]);
+  changeHeaderState(state: string) {
     this.granimInstance.changeState(state);
   }
 
