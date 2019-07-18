@@ -33,12 +33,12 @@ const DATASET_1980_2014 = [
   }
 ];
 
-const incomeGrowthData = {
+const growthDistributionData = {
   labels: ['p0 - p20', 'p20 - p50', 'p50 - p90', 'p90 - p100', 'top 1%', 'top 0.1%', 'top 0.01%', 'top 0.001%'],
   datasets: DATASET_1980_2014
 };
 
-const incomeGrowthOptions = {
+const growthDistributionOptions = {
   responsive: true,
   maintainAspectRatio: false,
   legend: { position: 'top' },
@@ -55,11 +55,11 @@ const incomeGrowthOptions = {
   }
 };
 
-const incomeGrowthConfig =       {
+const growthDistributionConfig = {
   type: 'bar',
-  data: incomeGrowthData,
-  options: incomeGrowthOptions
+  data: growthDistributionData,
+  options: growthDistributionOptions
 };
 
-export { incomeGrowthConfig };
+export { growthDistributionConfig };
 

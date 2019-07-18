@@ -4,15 +4,15 @@
     <nav class="subnavigation-menu">
       <ul class="subnavigation-menulist">
         <li>
-          <a (click)="showIncomeGrowthGraph()"
-            class="subnavigation-menuitem pointer">Income growth</a>
+          <a routerLink="growthDistribution"
+            class="subnavigation-menuitem pointer">Growth distribution</a>
         </li>
         <li>
-          <a (click)="showIncomeShareGraph()"
+          <a routerLink="incomeShare"
             class="subnavigation-menuitem pointer">Income share</a>
         </li>
         <li>
-          <a (click)="setM1Config()"
+          <a routerLink="moneysupply"
             class="subnavigation-menuitem pointer">Money supply</a>
         </li>
       </ul>
@@ -21,23 +21,6 @@
 
   <div>
     <router-outlet></router-outlet>
-    <div class="flex column margin-top-m text-center">
-      <h3>How is economic growth distributed? </h3>
-      <h3>Where does increased wealth flow? </h3>
-      <h3>How does growth of bottom 50%, top 10%, top 1% compare?</h3>
-      <h3>How do taxes affect the distribution of growth?</h3>
-      <div class="margin-top-m">
-        <span class="block label--source">
-          <a href="http://gabriel-zucman.eu/usdina/" target="_blank">
-            Source: Distributional national accounts (2016)
-          </a>
-        </span>
-        <span class="block label--contributors">Gabriel Zucman, Thomas Piketty, Emmanuel Saez</span>
-      </div>
-    </div>
   </div>
-
-  <div>
-    <canvas id="homeChart" width="500" height="500"></canvas>
-  </div>
+  
 </div>

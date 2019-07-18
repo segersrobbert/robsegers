@@ -8,6 +8,8 @@ import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
 import { ThreeComponent } from './three/three.component';
 import { PlaygroundComponent } from './playground/playground.component';
+import { GrowthDistributionComponent } from './home/growth-distribution/growth-distribution.component';
+import { MoneySupplyComponent } from './home/money-supply/money-supply.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { PlaygroundComponent } from './playground/playground.component';
     ClayComponent,
     D3Component,
     ThreeComponent,
-    PlaygroundComponent
+    PlaygroundComponent,
+    GrowthDistributionComponent,
+    MoneySupplyComponent
   ],
   imports: [
     BrowserModule,

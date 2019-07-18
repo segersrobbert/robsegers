@@ -6,6 +6,8 @@ import { PlaygroundComponent } from './playground/playground.component';
 import { ThreeComponent } from './three/three.component';
 import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
+import { GrowthDistributionComponent } from './home/growth-distribution/growth-distribution.component';
+import { MoneySupplyComponent } from './home/money-supply/money-supply.component';
 
 const routes: Routes = [
   {
@@ -15,7 +17,21 @@ const routes: Routes = [
   },
   {
     path: 'thefalloffiat',
-    component: HomeComponent
+    component: HomeComponent,
+    children: [
+      {
+        path: 'growthDistribution',
+        component: GrowthDistributionComponent,
+      },
+      {
+        path: 'moneysupply',
+        component: MoneySupplyComponent,
+      },
+      {
+        path: 'incomeShare',
+        component: GrowthDistributionComponent,
+      }
+    ]
   },
   {
     path: 'playground',
