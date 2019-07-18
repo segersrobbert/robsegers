@@ -1,15 +1,6 @@
-
-$breakpoints: (
-  'tiny': (min-width: 480px),
-  'small': (min-width: 640px),
-  'medium': (min-width: 768px),
-  'large': (min-width: 1024px),
-  'huge': (min-width: 1200px),
-);
-
-// colors
-$primary-color: #333;
-$primary-dark-color: #212121;
+// COLORS
+$primary: #333;
+$primary-dark: #212121;
 $background-color: #F5F5F5;
 
 $teal: #004D40;
@@ -20,3 +11,22 @@ $purple: #6A1B9A;
 $pink: #880E4F;
 $green: #1B5E20;
 $lightgreen: #33691E;
+
+$label: rgb(158, 158, 158);
+$error: #FF3333;
+$warning: #F9A825;
+
+// BREAKPOINTS
+$breakpoints: (
+  'tiny': (min-width: 480px),
+  'small': (min-width: 640px),
+  'medium': (min-width: 768px),
+  'large': (min-width: 1024px),
+  'huge': (min-width: 1200px),
+);
+
+// SPACINGS
+$spacing-s: 10px;
+$spacing-m: 25px;
+$spacing-l: 50px;
+

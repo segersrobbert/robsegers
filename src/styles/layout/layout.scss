@@ -1,10 +1,60 @@
+@import 'abstracts/variables.scss';
+
 .flex { display: flex; }
 .column { flex-direction: column; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.items-left { align-items: left; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.self-end { align-self: flex-end; }
 
+.relative { position: relative; }
+
+.inline { display: inline; }
 .block { display: block; }
 
-.text-center { text-align: center; }
+.nomargin { margin: 0; }
 
-.margin-top-m {
-  margin-top: 25px;
+.ruler {
+  border: 0;
+  height: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// CONTAINERS
+.container-l { padding: $spacing-l; }
+.container-m { padding: $spacing-m; }
+.container-s { padding: $spacing-s; }
+
+// UTILITIES
+.fullheight { height: 100%; }
+.fullwidth { width: 100%; }
+
+// MARGINS
+$directions: top right bottom left;
+$sizes: s m l;
+@each $direction in $directions {
+  @each $size in $sizes {
+    .margin-#{$direction}-#{$size} {
+      @if ($size == 's')  { margin-#{$direction}: $spacing-s; }
+      @if ($size == 'm')  { margin-#{$direction}: $spacing-m; }
+      @if ($size == 'l')  { margin-#{$direction}: $spacing-l; }
+    }
+  }
+}
+
+// PADDINGS
+$directions: top right bottom left;
+$sizes: s m l;
+@each $direction in $directions {
+  @each $size in $sizes {
+    .padding-#{$direction}-#{$size} {
+      @if ($size == 's')  { padding-#{$direction}: $spacing-s; }
+      @if ($size == 'm')  { padding-#{$direction}: $spacing-m; }
+      @if ($size == 'l')  { padding-#{$direction}: $spacing-l; }
+    }
+  }
 }
