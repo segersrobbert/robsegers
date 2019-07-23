@@ -3,6 +3,7 @@
 .flex { display: flex; }
 .column { flex-direction: column; }
 .justify-between { justify-content: space-between; }
+.justify-evenly { justify-content: space-evenly; }
 .justify-center { justify-content: center; }
 .justify-end { justify-content: flex-end; }
 .items-left { align-items: left; }
@@ -10,12 +11,14 @@
 .items-end { align-items: flex-end; }
 .self-end { align-self: flex-end; }
 
+.nomargin { margin: 0; }
+.marginauto { margin: auto; }
 .relative { position: relative; }
 
 .inline { display: inline; }
 .block { display: block; }
 
-.nomargin { margin: 0; }
+.vw85 { width: 85vw; }
 
 .ruler {
   border: 0;
