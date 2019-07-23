@@ -13,7 +13,12 @@ import { IncomeShareComponent } from './home/income-share/income-share.component
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'thefalloffiat',
+    redirectTo: 'thefalloffiat/growthDistribution',
+    pathMatch: 'full'
+  },
+  {
+    path: 'thefalloffiat',
+    redirectTo: 'thefalloffiat/growthDistribution',
     pathMatch: 'full'
   },
   {
