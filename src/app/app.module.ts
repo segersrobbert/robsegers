@@ -11,10 +11,12 @@ import { D3Component } from './d3/d3.component';
 import { ThreeComponent } from './three/three.component';
 
 // FALL OF FIAT
-import { HomeComponent } from './home/home.component';
-import { GrowthDistributionComponent } from './home/growth-distribution/growth-distribution.component';
-import { MoneySupplyComponent } from './home/money-supply/money-supply.component';
-import { IncomeShareComponent } from './home/income-share/income-share.component';
+import { HomeComponent } from './fallOfFiat/fallOfFiat.component';
+import { GrowthDistributionComponent } from './fallOfFiat/growth-distribution/growth-distribution.component';
+import { MoneySupplyComponent } from './fallOfFiat/money-supply/money-supply.component';
+import { IncomeShareComponent } from './fallOfFiat/income-share/income-share.component';
+import { TheStormComponent } from './fallOfFiat/the-storm/the-storm.component';
+import { OverviewComponent } from './fallOfFiat/overview/overview.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { IncomeShareComponent } from './home/income-share/income-share.component
     PlaygroundComponent,
     GrowthDistributionComponent,
     MoneySupplyComponent,
-    IncomeShareComponent
+    IncomeShareComponent,
+    TheStormComponent,
+    OverviewComponent
   ],
   imports: [
     BrowserModule,

@@ -19,6 +19,8 @@
 .block { display: block; }
 
 .vw85 { width: 85vw; }
+.vh80 { height: 80vh; }
+.vh75 { height: 75vh; }
 
 .ruler {
   border: 0;
@@ -33,8 +35,11 @@
 .container-s { padding: $spacing-s; }
 
 // UTILITIES
-.fullheight { height: 100%; }
-.fullwidth { width: 100%; }
+.height-full { height: 100%; }
+.width-full { width: 100%; }
+.width-half { width: 50%; }
+.vh-section { min-height: 100vh; }
+
 
 // MARGINS
 $directions: top right bottom left;
@@ -59,5 +64,19 @@ $sizes: s m l;
       @if ($size == 'm')  { padding-#{$direction}: $spacing-m; }
       @if ($size == 'l')  { padding-#{$direction}: $spacing-l; }
     }
+  }
+}
+
+// TOP CORRECTIONS
+@for $i from 1 through 100 {
+  @if ($i) % 5 == 0 {
+      .top-#{$i} { top: $i * 1vh; }
+  }
+}
+
+// FONT SIZES
+@for $i from 1 through 48 {
+  @if ($i) % 2 == 0 {
+      .font-#{$i} { font-size: $i * 1px; }
   }
 }

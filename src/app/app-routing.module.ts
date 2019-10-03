@@ -1,14 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './fallOfFiat/fallOfFiat.component';
 import { PlaygroundComponent } from './playground/playground.component';
 import { ThreeComponent } from './three/three.component';
 import { ClayComponent } from './clay/clay.component';
 import { D3Component } from './d3/d3.component';
-import { GrowthDistributionComponent } from './home/growth-distribution/growth-distribution.component';
-import { MoneySupplyComponent } from './home/money-supply/money-supply.component';
-import { IncomeShareComponent } from './home/income-share/income-share.component';
+import { GrowthDistributionComponent } from './fallOfFiat/growth-distribution/growth-distribution.component';
+import { MoneySupplyComponent } from './fallOfFiat/money-supply/money-supply.component';
+import { IncomeShareComponent } from './fallOfFiat/income-share/income-share.component';
+import { TheStormComponent } from './fallOfFiat/the-storm/the-storm.component';
+import { OverviewComponent } from './fallOfFiat/overview/overview.component';
 
 const routes: Routes = [
   {
@@ -25,6 +27,14 @@ const routes: Routes = [
     path: 'thefalloffiat',
     component: HomeComponent,
     children: [
+      {
+        path: 'overview',
+        component: OverviewComponent,
+      },
+      {
+        path: 'thestorm',
+        component: TheStormComponent,
+      },
       {
         path: 'growthDistribution',
         component: GrowthDistributionComponent,
