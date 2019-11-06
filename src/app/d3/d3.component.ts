@@ -52,7 +52,7 @@ export class D3Component implements AfterViewInit {
       const x = x0 += (x1 - x0) * .1;
       const y = y0 += (y1 - y0) * .1;
 
-      d3.select({}).transition()
+      d3.select('').transition()
         .duration(2000)
         .ease(Math.sqrt)
         .tween('circle', () => {

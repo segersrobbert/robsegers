@@ -1,3 +1,5 @@
+// import { DateValue } from 'src/app/fallOfFiat/overview/overview.component';
+
 export const FED_funds_rate2 = [
   { date: new Date(1981, 11, 16), value:	13.3300 },
   { date: new Date(1981, 11, 17), value:	13.1600 },

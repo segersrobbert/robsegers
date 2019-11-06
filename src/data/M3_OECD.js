@@ -1,3 +1,5 @@
+// import { DateValue } from 'src/app/fallOfFiat/overview/overview.component';
+
 export const M3_OECD_DATA = [
   { date: new Date(1980, 1, 1),	value: 3.281434 },
   { date: new Date(1980, 2, 1),	value: 3.318017 },
