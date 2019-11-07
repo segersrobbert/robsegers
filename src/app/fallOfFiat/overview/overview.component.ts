@@ -47,7 +47,6 @@ export class OverviewComponent implements OnInit {
 
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
-  // from 1950 untill now
   xScale: d3.ScaleTime<number, number>;
   xAxis: d3.Axis<number | Date | { valueOf(): number} >;
   gX: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -95,16 +94,10 @@ export class OverviewComponent implements OnInit {
       .domain([new Date(1950, 0, 1), new Date()])
       .range([0, svgWidth]);
 
-    const yScalePercentage = d3.scaleLinear()
-      .domain([0, 120])
-      .range([height, 0]);
     this.yScalePercentage = d3.scaleLinear()
       .domain([0, 120])
       .range([height, 0]);
 
-    const yScalePercentageInterest = d3.scaleLinear()
-      .domain([0, 20])
-      .range([height, 0]);
     this.yScalePercentageInterest = d3.scaleLinear()
       .domain([0, 20])
       .range([height, 0]);
@@ -119,62 +112,39 @@ export class OverviewComponent implements OnInit {
       .range([height, 0]);
 
     const xDateAccessor = d => this.xScale(d.date);
-    const yPercentageInterestAccessor = d => yScalePercentageInterest(d.value);
+    const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
     const yStockAccessor = d => yScaleSP500(d.value);
 
     // create axis objects
-    const xAxis = d3.axisBottom(xScale);
     this.xAxis = d3.axisBottom(xScale);
 
-    const yAxisPercentage = d3.axisLeft(this.yScalePercentage);
     this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
-    const yAxisPercentageInterest = d3.axisLeft(yScalePercentageInterest);
-    this.yAxisPercentageInterest = d3.axisLeft(yScalePercentageInterest);
+    this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
 
-    const yAxisSP500 = d3.axisRight(yScaleSP500);
     this.yAxisSP500 = d3.axisRight(yScaleSP500);
 
     // Draw Axis
-    const gX = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
-      .call(xAxis);
     this.gX = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
-      .call(xAxis);
-
-    const gY = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .attr('stroke', 'green')
-      .attr('stroke-width', 1)
-      .call(yAxisPercentage);
+      .call(this.xAxis);
 
     this.gY = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
       .attr('stroke', 'green')
       .attr('stroke-width', 1)
-      .call(yAxisPercentage);
+      .call(this.yAxisPercentage);
 
-    const gYinterest = this.svg.append('g')
-      .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .call(yAxisPercentageInterest);
     this.gYinterest = this.svg.append('g')
       .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
       .attr('stroke', 'teal')
       .attr('stroke-width', 1)
-      .call(yAxisPercentageInterest);
+      .call(this.yAxisPercentageInterest);
 
-    const gYSP500 = this.svg.append('g')
-      .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1)
-      .call(yAxisSP500);
     this.gYSP500 = this.svg.append('g')
       .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1)
-      .call(yAxisSP500);
+      .call(this.yAxisSP500);
 
     // text label for the x axis
     this.svg
@@ -204,18 +174,6 @@ export class OverviewComponent implements OnInit {
       .text('Stock value');
 
     const pointSize = 10;
-    const lineM3 = this.svg
-      .append('path')
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .datum(M3_OECD_DATA)
-      .attr('fill', 'none')
-      .attr('stroke', 'green')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
     this.lineM3 = this.svg
       .append('path')
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
@@ -229,18 +187,6 @@ export class OverviewComponent implements OnInit {
         .y(yPercentageInterestAccessor)
       );
 
-    const lineSP500 = this.svg
-      .append('path')
-      .datum(SP500_DATA)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yStockAccessor)
-      );
     this.lineSP500 = this.svg
       .append('path')
       .datum(SP500_DATA)
@@ -267,18 +213,6 @@ export class OverviewComponent implements OnInit {
     //     .y(d => yScalePercentage(d.value))
     //   );
 
-    const lineFEDFundsRate = this.svg
-      .append('path')
-      .datum(FED_funds_rate)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
     this.lineFEDFundsRate = this.svg
       .append('path')
       .datum(FED_funds_rate)
@@ -291,34 +225,9 @@ export class OverviewComponent implements OnInit {
         .x(xDateAccessor)
         .y(yPercentageInterestAccessor)
       );
-
-    const lineFEDFundsRate2 = this.svg
-      .append('path')
-      .datum(FED_funds_rate2)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
     this.lineFEDFundsRate2 = this.svg
       .append('path')
       .datum(FED_funds_rate2)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
-    const lineFEDFundsRate3 = this.svg
-      .append('path')
-      .datum(FED_funds_rate3)
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
       .attr('clip-path', 'url(#clip)')
       .attr('fill', 'none')
@@ -358,6 +267,7 @@ export class OverviewComponent implements OnInit {
   }
 
   zoomed() {
+    // console.log("TCL: OverviewComponent -> zoomed -> zoomed")
     let newXScale;
     let newYScalePercentage;
     let newYScalePercentageInterest;
