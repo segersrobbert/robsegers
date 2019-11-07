@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+
 import * as d3 from 'd3';
 
 // import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
@@ -44,6 +47,7 @@ export class OverviewComponent implements OnInit {
     // ATTRIBUTION: Proper attribution requires clear indication of the data source as "www.macrotrends.net".
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
+  zoomed$: Subject<void> = new Subject();
 
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
@@ -55,11 +59,16 @@ export class OverviewComponent implements OnInit {
   yScalePercentage: d3.ScaleLinear<number, number>;
   yScalePercentageInterest: d3.ScaleLinear<number, number>;
   yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
-  yScaleSP500: d3.ScaleLinear<number, number>;
+  yScaleSP500: d3.ScaleLinear<number, number>; // RENAME TO yScaleStocks
   gY: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   gYinterest: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   gYSP500: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   yAxisSP500: d3.Axis<number | { valueOf(): number }>;
+
+  newXScale: d3.ScaleTime<number, number>;
+  newYScalePercentage: d3.ScaleLinear<number, number>;
+  newYScalePercentageInterest: d3.ScaleLinear<number, number>;
+  newYScaleStocks: d3.ScaleLinear<number, number>;
 
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
@@ -70,6 +79,13 @@ export class OverviewComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
+    this.zoomed$
+      .pipe(debounceTime(50))
+      .subscribe(() => {
+        console.log("TCL: OverviewComponent -> ngOnInit -> recalculate")
+        this.recalculate();
+      });
 
     // dimensions and margins
     this.svg = d3.select('svg');
@@ -254,7 +270,8 @@ export class OverviewComponent implements OnInit {
     const zoom = d3.zoom()
         .scaleExtent([.5, 20])
         .extent([[0, 0], [width, height]])
-        .on('zoom', this.zoomed.bind(this));
+        .on('zoom', this.zoomed.bind(this))
+        .on('zoom', this.recalculate.bind(this));
 
     this.svg.append('rect')
         .attr('width', width)
@@ -267,58 +284,60 @@ export class OverviewComponent implements OnInit {
   }
 
   zoomed() {
-    // console.log("TCL: OverviewComponent -> zoomed -> zoomed")
-    let newXScale;
-    let newYScalePercentage;
-    let newYScalePercentageInterest;
-    let newYScaleStocks;
+    console.log("TCL: OverviewComponent -> zoomed -> zoomed")
+    this.zoomed$.next();
+  }
+
+  recalculate() {
+    console.log("TCL: OverviewComponent -> recalculate -> recalculate")
+
     if (!d3.event) { // initial draw
-      newXScale = this.xScale;
-      newYScalePercentage = this.yScalePercentage;
-      newYScalePercentageInterest = this.yScalePercentageInterest;
-      newYScaleStocks = this.yScaleSP500;
+      this.newXScale = this.xScale;
+      this.newYScalePercentage = this.yScalePercentage;
+      this.newYScalePercentageInterest = this.yScalePercentageInterest;
+      this.newYScaleStocks = this.yScaleSP500;
     } else {
-      newXScale = d3.event.transform.rescaleX(this.xScale);
-      newYScalePercentage = d3.event.transform.rescaleY(this.yScalePercentage);
-      newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
-      newYScaleStocks = d3.event.transform.rescaleY(this.yScaleSP500);
+      this.newXScale = d3.event.transform.rescaleX(this.xScale);
+      this.newYScalePercentage = d3.event.transform.rescaleY(this.yScalePercentage);
+      this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
+      this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleSP500);
     }
     // update axes
-    this.gX.call(this.xAxis.scale(newXScale));
-    this.gY.call(this.yAxisPercentage.scale(newYScalePercentage));
-    this.gYinterest.call(this.yAxisPercentageInterest.scale(newYScalePercentageInterest));
-    this.gYSP500.call(this.yAxisSP500.scale(newYScaleStocks));
+    this.gX.call(this.xAxis.scale(this.newXScale));
+    this.gY.call(this.yAxisPercentage.scale(this.newYScalePercentage));
+    this.gYinterest.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
+    this.gYSP500.call(this.yAxisSP500.scale(this.newYScaleStocks));
 
     this.lineM3.datum(M3_OECD_DATA)
       .attr('d', d3.line()
-        .x((d: any) => newXScale(d.date))
-        .y((d: any) => newYScalePercentage(d.value))
+        .x((d: any) => this.newXScale(d.date))
+        .y((d: any) => this.newYScalePercentage(d.value))
       );
     this.lineSP500.datum(SP500_DATA)
       .attr('d', d3.line()
-        .x((d: any) => newXScale(d.date))
-        .y((d: any) => newYScaleStocks(d.value))
+        .x((d: any) => this.newXScale(d.date))
+        .y((d: any) => this.newYScaleStocks(d.value))
       );
     // lineInterestRates.datum(OECDinterestRatesData)
     //   .attr('d', d3.line()
-    //     .x(d => newXScale(d.date))
+    //     .x(d => this.newXScale(d.date))
     //     .y(d => newYScalePercentageInterest(d.value))
     //   );
 
     this.lineFEDFundsRate.datum(FED_funds_rate)
       .attr('d', d3.line()
-        .x((d: any) => newXScale(d.date))
-        .y((d: any) => newYScalePercentageInterest(d.value))
+        .x((d: any) => this.newXScale(d.date))
+        .y((d: any) => this.newYScalePercentageInterest(d.value))
       );
     this.lineFEDFundsRate2.datum(FED_funds_rate2)
       .attr('d', d3.line()
-        .x((d: any) => newXScale(d.date))
-        .y((d: any) => newYScalePercentageInterest(d.value))
+        .x((d: any) => this.newXScale(d.date))
+        .y((d: any) => this.newYScalePercentageInterest(d.value))
       );
     this.lineFEDFundsRate3.datum(FED_funds_rate3)
       .attr('d', d3.line()
-        .x((d: any) => newXScale(d.date))
-        .y((d: any) => newYScalePercentageInterest(d.value))
+        .x((d: any) => this.newXScale(d.date))
+        .y((d: any) => this.newYScalePercentageInterest(d.value))
       );
   }
 
