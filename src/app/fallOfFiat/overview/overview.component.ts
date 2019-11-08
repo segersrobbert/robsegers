@@ -16,6 +16,7 @@ export interface DateValue {
   value: number;
 }
 
+// dimensions and margins
 const width = window.innerWidth;
 const height = 0.65 * window.innerHeight;
 const svgWidth = 0.85 * width;
@@ -81,13 +82,9 @@ export class OverviewComponent implements OnInit {
   ngOnInit() {
 
     this.zoomed$
-      .pipe(debounceTime(50))
-      .subscribe(() => {
-        console.log("TCL: OverviewComponent -> ngOnInit -> recalculate")
-        this.recalculate();
-      });
+      .pipe(debounceTime(5))
+      .subscribe(() => this.recalculate());
 
-    // dimensions and margins
     this.svg = d3.select('svg');
 
     // clipping region
@@ -270,8 +267,8 @@ export class OverviewComponent implements OnInit {
     const zoom = d3.zoom()
         .scaleExtent([.5, 20])
         .extent([[0, 0], [width, height]])
-        .on('zoom', this.zoomed.bind(this))
-        .on('zoom', this.recalculate.bind(this));
+        // .on('zoom', this.zoomed.bind(this))
+        .on('zoom', this.zoomed.bind(this));
 
     this.svg.append('rect')
         .attr('width', width)
@@ -284,13 +281,6 @@ export class OverviewComponent implements OnInit {
   }
 
   zoomed() {
-    console.log("TCL: OverviewComponent -> zoomed -> zoomed")
-    this.zoomed$.next();
-  }
-
-  recalculate() {
-    console.log("TCL: OverviewComponent -> recalculate -> recalculate")
-
     if (!d3.event) { // initial draw
       this.newXScale = this.xScale;
       this.newYScalePercentage = this.yScalePercentage;
@@ -302,6 +292,10 @@ export class OverviewComponent implements OnInit {
       this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
       this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleSP500);
     }
+    this.zoomed$.next();
+  }
+
+  recalculate() {
     // update axes
     this.gX.call(this.xAxis.scale(this.newXScale));
     this.gY.call(this.yAxisPercentage.scale(this.newYScalePercentage));
