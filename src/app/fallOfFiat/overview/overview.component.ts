@@ -26,6 +26,7 @@ const margin = {
   bottom: (0.05 * height),
   left: Math.max((0.05 * width), 30)
 };
+const pointSize = 10;
 
 @Component({
   selector: 'app-overview',
@@ -49,7 +50,6 @@ export class OverviewComponent implements OnInit {
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
   zoomed$: Subject<void> = new Subject();
-
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
   xScale: d3.ScaleTime<number, number>;
@@ -60,7 +60,7 @@ export class OverviewComponent implements OnInit {
   yScalePercentage: d3.ScaleLinear<number, number>;
   yScalePercentageInterest: d3.ScaleLinear<number, number>;
   yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
-  yScaleSP500: d3.ScaleLinear<number, number>; // RENAME TO yScaleStocks
+  yScaleStocks: d3.ScaleLinear<number, number>;
   gY: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   gYinterest: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   gYSP500: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -98,43 +98,32 @@ export class OverviewComponent implements OnInit {
        .attr('y', margin.top - 10);
 
     // scale objects
-    const xScale = d3.scaleTime()
+    this.xScale = d3.scaleTime()
       // from 1950 untill now
       .domain([new Date(1950, 0, 1), new Date()])
       .range([0, svgWidth]);
-
-    this.xScale = d3.scaleTime()
-      .domain([new Date(1950, 0, 1), new Date()])
-      .range([0, svgWidth]);
-
     this.yScalePercentage = d3.scaleLinear()
       .domain([0, 120])
       .range([height, 0]);
-
     this.yScalePercentageInterest = d3.scaleLinear()
       .domain([0, 20])
       .range([height, 0]);
-    this.yScalePercentageInterest = d3.scaleLinear()
-      .domain([0, 20])
-      .range([height, 0]);
-    const yScaleSP500 = d3.scaleLinear()
-      .domain([0, 3000])
-      .range([height, 0]);
-    this.yScaleSP500 = d3.scaleLinear()
+    this.yScaleStocks = d3.scaleLinear()
       .domain([0, 3000])
       .range([height, 0]);
 
     const xDateAccessor = d => this.xScale(d.date);
+    const yPercentageAccessor = d => this.yScalePercentage(d.value);
     const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
-    const yStockAccessor = d => yScaleSP500(d.value);
+    const yStockAccessor = d => this.yScaleStocks(d.value);
 
     // create axis objects
-    this.xAxis = d3.axisBottom(xScale);
+    this.xAxis = d3.axisBottom(this.xScale);
 
     this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
     this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
 
-    this.yAxisSP500 = d3.axisRight(yScaleSP500);
+    this.yAxisSP500 = d3.axisRight(this.yScaleStocks);
 
     // Draw Axis
     this.gX = this.svg.append('g')
@@ -186,7 +175,6 @@ export class OverviewComponent implements OnInit {
       .style('text-anchor', 'middle')
       .text('Stock value');
 
-    const pointSize = 10;
     this.lineM3 = this.svg
       .append('path')
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
@@ -197,7 +185,7 @@ export class OverviewComponent implements OnInit {
       .attr('stroke-width', 1)
       .attr('d', d3.line()
         .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
+        .y(yPercentageAccessor)
       );
 
     this.lineSP500 = this.svg
@@ -267,7 +255,6 @@ export class OverviewComponent implements OnInit {
     const zoom = d3.zoom()
         .scaleExtent([.5, 20])
         .extent([[0, 0], [width, height]])
-        // .on('zoom', this.zoomed.bind(this))
         .on('zoom', this.zoomed.bind(this));
 
     this.svg.append('rect')
@@ -281,17 +268,19 @@ export class OverviewComponent implements OnInit {
   }
 
   zoomed() {
-    if (!d3.event) { // initial draw
+    // initial draw
+    if (!d3.event) {
       this.newXScale = this.xScale;
       this.newYScalePercentage = this.yScalePercentage;
       this.newYScalePercentageInterest = this.yScalePercentageInterest;
-      this.newYScaleStocks = this.yScaleSP500;
+      this.newYScaleStocks = this.yScaleStocks;
     } else {
       this.newXScale = d3.event.transform.rescaleX(this.xScale);
       this.newYScalePercentage = d3.event.transform.rescaleY(this.yScalePercentage);
       this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
-      this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleSP500);
+      this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleStocks);
     }
+    // next onto debounced recalculation
     this.zoomed$.next();
   }
 
