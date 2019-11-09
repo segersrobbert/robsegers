@@ -50,27 +50,32 @@ export class OverviewComponent implements OnInit {
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
   zoomed$: Subject<void> = new Subject();
+  zoom: d3.ZoomBehavior<Element, unknown>;
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
   xScale: d3.ScaleTime<number, number>;
   xAxis: d3.Axis<number | Date | { valueOf(): number} >;
-  gX: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+  xAxisLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
   yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
   yScalePercentage: d3.ScaleLinear<number, number>;
-  yScalePercentageInterest: d3.ScaleLinear<number, number>;
-  yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
-  yScaleStocks: d3.ScaleLinear<number, number>;
-  gY: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  gYinterest: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  gYSP500: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  yAxisSP500: d3.Axis<number | { valueOf(): number }>;
 
+  yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
+  yScalePercentageInterest: d3.ScaleLinear<number, number>;
+
+  yAxisPercentageLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+  yAxisInterestLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+  yScaleStocks: d3.ScaleLinear<number, number>;
+  yAxisStocksLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+  yAxisStocks: d3.Axis<number | { valueOf(): number }>;
+
+  // new scales, calculated after zoom
   newXScale: d3.ScaleTime<number, number>;
   newYScalePercentage: d3.ScaleLinear<number, number>;
   newYScalePercentageInterest: d3.ScaleLinear<number, number>;
   newYScaleStocks: d3.ScaleLinear<number, number>;
 
+  // line graphs
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
@@ -99,7 +104,6 @@ export class OverviewComponent implements OnInit {
 
     // scale objects
     this.xScale = d3.scaleTime()
-      // from 1950 untill now
       .domain([new Date(1950, 0, 1), new Date()])
       .range([0, svgWidth]);
     this.yScalePercentage = d3.scaleLinear()
@@ -117,36 +121,34 @@ export class OverviewComponent implements OnInit {
     const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
     const yStockAccessor = d => this.yScaleStocks(d.value);
 
-    // create axis objects
+    // Axis objects
     this.xAxis = d3.axisBottom(this.xScale);
-
     this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
     this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
+    this.yAxisStocks = d3.axisRight(this.yScaleStocks);
 
-    this.yAxisSP500 = d3.axisRight(this.yScaleStocks);
-
-    // Draw Axis
-    this.gX = this.svg.append('g')
+    // X and Y axis lines
+    this.xAxisLine = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
       .call(this.xAxis);
 
-    this.gY = this.svg.append('g')
+    this.yAxisPercentageLine = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
       .attr('stroke', 'green')
       .attr('stroke-width', 1)
       .call(this.yAxisPercentage);
 
-    this.gYinterest = this.svg.append('g')
+    this.yAxisInterestLine = this.svg.append('g')
       .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
       .attr('stroke', 'teal')
       .attr('stroke-width', 1)
       .call(this.yAxisPercentageInterest);
 
-    this.gYSP500 = this.svg.append('g')
+    this.yAxisStocksLine = this.svg.append('g')
       .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1)
-      .call(this.yAxisSP500);
+      .call(this.yAxisStocks);
 
     // text label for the x axis
     this.svg
@@ -175,6 +177,7 @@ export class OverviewComponent implements OnInit {
       .style('text-anchor', 'middle')
       .text('Stock value');
 
+    // Line graphs
     this.lineM3 = this.svg
       .append('path')
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
@@ -252,7 +255,7 @@ export class OverviewComponent implements OnInit {
       );
 
     // Pan and zoom
-    const zoom = d3.zoom()
+    this.zoom = d3.zoom()
         .scaleExtent([.5, 20])
         .extent([[0, 0], [width, height]])
         .on('zoom', this.zoomed.bind(this));
@@ -263,7 +266,7 @@ export class OverviewComponent implements OnInit {
         .style('fill', 'none')
         .style('pointer-events', 'all')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
-        .call(zoom as any);
+        .call(this.zoom);
 
   }
 
@@ -285,11 +288,11 @@ export class OverviewComponent implements OnInit {
   }
 
   recalculate() {
-    // update axes
-    this.gX.call(this.xAxis.scale(this.newXScale));
-    this.gY.call(this.yAxisPercentage.scale(this.newYScalePercentage));
-    this.gYinterest.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
-    this.gYSP500.call(this.yAxisSP500.scale(this.newYScaleStocks));
+    // update axis
+    this.xAxisLine.call(this.xAxis.scale(this.newXScale));
+    this.yAxisPercentageLine.call(this.yAxisPercentage.scale(this.newYScalePercentage));
+    this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
+    this.yAxisStocksLine.call(this.yAxisStocks.scale(this.newYScaleStocks));
 
     this.lineM3.datum(M3_OECD_DATA)
       .attr('d', d3.line()
