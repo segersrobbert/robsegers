@@ -15,12 +15,12 @@ import { OverviewComponent } from './fallOfFiat/overview/overview.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'thefalloffiat/growthDistribution',
+    redirectTo: 'thefalloffiat/overview',
     pathMatch: 'full'
   },
   {
     path: 'thefalloffiat',
-    redirectTo: 'thefalloffiat/growthDistribution',
+    redirectTo: 'thefalloffiat/overview',
     pathMatch: 'full'
   },
   {
