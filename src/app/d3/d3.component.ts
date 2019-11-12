@@ -9,7 +9,6 @@ import * as d3 from 'd3';
 export class D3Component implements AfterViewInit {
 
   @ViewChild('d3content', { static: true }) d3content: ElementRef;
-
   constructor() { }
 
   ngAfterViewInit() {
@@ -48,11 +47,10 @@ export class D3Component implements AfterViewInit {
 
       const z = d3.hsl(++i % 360, 1, .5).rgb();
       const c = `rgba(${z.r},${z.g},${z.b},`;
-      // const c = 'rgba(' + z.r + ',' + z.g + ',' + z.b + ',';
       const x = x0 += (x1 - x0) * .1;
       const y = y0 += (y1 - y0) * .1;
 
-      d3.select('').transition()
+      d3.select('#d3content').transition()
         .duration(2000)
         .ease(Math.sqrt)
         .tween('circle', () => {
