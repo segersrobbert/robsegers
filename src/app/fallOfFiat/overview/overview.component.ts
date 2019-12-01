@@ -59,7 +59,6 @@ export class OverviewComponent implements OnInit {
 
   yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
   yScalePercentage: d3.ScaleLinear<number, number>;
-
   yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
   yScalePercentageInterest: d3.ScaleLinear<number, number>;
 
@@ -81,6 +80,11 @@ export class OverviewComponent implements OnInit {
   lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineFEDFundsRate2: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineFEDFundsRate3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+  lineFEDFundsRateAverage: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+  lineFEDFundsRateAverage2: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+  lineFEDFundsRateAverage3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+
+  movingAverageData: any[];
 
   constructor() { }
 
@@ -268,6 +272,50 @@ export class OverviewComponent implements OnInit {
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(this.zoom);
 
+    // calculates simple moving average over 50 days
+    this.movingAverageData = this.movingAverage(FED_funds_rate, 49);
+
+    this.lineFEDFundsRateAverage = this.svg
+      .append('path')
+      .datum(this.movingAverageData)
+      .attr('transform', `translate(${pointSize}, ${pointSize})`)
+      .attr('clip-path', 'url(#clip)')
+      .attr('fill', 'none')
+      .attr('stroke', 'red')
+      .attr('stroke-width', 1)
+      .attr('d', d3.line()
+        .x(xDateAccessor)
+        .y(yPercentageInterestAccessor)
+      );
+
+  }
+
+  // movingAverage(data: DateValue[], numberOfPricePoints: number): any[] {
+  //   return data.map((row, index, total) => {
+  //     const start = Math.max(0, index - numberOfPricePoints);
+  //     const end = index;
+  //     const subset = total.slice(start, end + 1);
+  //     const sum = subset.reduce((a, b) => a + b['value'], 0);
+  //     return {
+  //       date: row['date'],
+  //       value: sum / subset.length
+  //     };
+  //   });
+  // }
+
+  movingAverage(values: DateValue[], N: number) {
+    let i = 0;
+    let sum = 0;
+    const means = [];
+    for (const n = Math.min(N - 1, values.length); i < n; i++) {
+      sum += values[i].value;
+    }
+    for (const n = values.length; i < n; i++) {
+      sum += values[i].value;
+      means.push({ date: values[i].date, value: sum / N });
+      sum -= values[i - N + 1].value;
+    }
+    return means;
   }
 
   zoomed() {
@@ -309,7 +357,11 @@ export class OverviewComponent implements OnInit {
     //     .x(d => this.newXScale(d.date))
     //     .y(d => newYScalePercentageInterest(d.value))
     //   );
-
+    this.lineFEDFundsRateAverage.datum(this.movingAverageData)
+    .attr('d', d3.line()
+      .x((d: any) => this.newXScale(d.date))
+      .y((d: any) => this.newYScalePercentageInterest(d.value))
+    );
     this.lineFEDFundsRate.datum(FED_funds_rate)
       .attr('d', d3.line()
         .x((d: any) => this.newXScale(d.date))
