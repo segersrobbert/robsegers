@@ -273,7 +273,7 @@ export class OverviewComponent implements OnInit {
         .call(this.zoom);
 
     const data = await d3.csv('../../../data/FED_funds_rate.csv')
-    const dateValues = data.map(entry => {
+    const dateValues = data.map((entry) => {
       return {
         date: new Date(entry.date),
         value: +entry.value
