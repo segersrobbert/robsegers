@@ -88,7 +88,7 @@ export class OverviewComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
+  async ngOnInit() {
 
     this.zoomed$
       .pipe(debounceTime(5))
@@ -271,6 +271,8 @@ export class OverviewComponent implements OnInit {
         .style('pointer-events', 'all')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(this.zoom);
+
+    const data = await d3.csv('../../../data/FED_funds_rate.csv')
 
     // calculates simple moving average over 50 days
     this.movingAverageData = this.movingAverage(FED_funds_rate, 49);
