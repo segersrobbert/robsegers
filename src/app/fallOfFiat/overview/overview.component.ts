@@ -7,9 +7,6 @@ import * as d3 from 'd3';
 // import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
 import { M3_OECD_DATA } from '../../../data/M3_OECD';
 import { SP500_DATA } from '../../../data/sp500';
-import { FED_funds_rate } from '../../../data/FED_funds_rate';
-import { FED_funds_rate2 } from '../../../data/FED_funds_rate2';
-import { FED_funds_rate3 } from '../../../data/FED_funds_rate3';
 
 export interface DateValue {
   date: Date;
@@ -48,6 +45,8 @@ export class OverviewComponent implements OnInit {
   // FED funds rate: https://www.macrotrends.net/2015/fed-funds-rate-historical-chart
     // ATTRIBUTION: Proper attribution requires clear indication of the data source as "www.macrotrends.net".
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
+
+  FED_FUNDS_RATE_DATA: any;
 
   zoomed$: Subject<void> = new Subject();
   zoom: d3.ZoomBehavior<Element, unknown>;
@@ -221,33 +220,17 @@ export class OverviewComponent implements OnInit {
     //     .y(d => yScalePercentage(d.value))
     //   );
 
+    const data = await d3.csv('../../../data/FED_funds_rate.csv')
+    this.FED_FUNDS_RATE_DATA = data.map(entry => {
+      return {
+        date: new Date(entry.date),
+        value: +entry.value
+      } as any;
+    });
+
     this.lineFEDFundsRate = this.svg
       .append('path')
-      .datum(FED_funds_rate)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
-    this.lineFEDFundsRate2 = this.svg
-      .append('path')
-      .datum(FED_funds_rate2)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
-    this.lineFEDFundsRate3 = this.svg
-      .append('path')
-      .datum(FED_funds_rate3)
+      .datum(this.FED_FUNDS_RATE_DATA)
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
       .attr('clip-path', 'url(#clip)')
       .attr('fill', 'none')
@@ -272,15 +255,8 @@ export class OverviewComponent implements OnInit {
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(this.zoom);
 
-    const data = await d3.csv('../../../data/FED_funds_rate.csv')
-    const dateValues = data.map((entry) => {
-      return {
-        date: new Date(entry.date),
-        value: +entry.value
-      };
-    });
     // calculates simple moving average over 50 days
-    this.movingAverageData = this.movingAverage(FED_funds_rate, 49);
+    this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
 
     this.lineFEDFundsRateAverage = this.svg
       .append('path')
@@ -296,7 +272,6 @@ export class OverviewComponent implements OnInit {
       );
 
   }
-
   // movingAverage(data: DateValue[], numberOfPricePoints: number): any[] {
   //   return data.map((row, index, total) => {
   //     const start = Math.max(0, index - numberOfPricePoints);
@@ -309,7 +284,6 @@ export class OverviewComponent implements OnInit {
   //     };
   //   });
   // }
-
   movingAverage(values: DateValue[], N: number) {
     let i = 0;
     let sum = 0;
@@ -369,21 +343,12 @@ export class OverviewComponent implements OnInit {
       .x((d: any) => this.newXScale(d.date))
       .y((d: any) => this.newYScalePercentageInterest(d.value))
     );
-    this.lineFEDFundsRate.datum(FED_funds_rate)
+    this.lineFEDFundsRate.datum(this.FED_FUNDS_RATE_DATA)
       .attr('d', d3.line()
         .x((d: any) => this.newXScale(d.date))
         .y((d: any) => this.newYScalePercentageInterest(d.value))
       );
-    this.lineFEDFundsRate2.datum(FED_funds_rate2)
-      .attr('d', d3.line()
-        .x((d: any) => this.newXScale(d.date))
-        .y((d: any) => this.newYScalePercentageInterest(d.value))
-      );
-    this.lineFEDFundsRate3.datum(FED_funds_rate3)
-      .attr('d', d3.line()
-        .x((d: any) => this.newXScale(d.date))
-        .y((d: any) => this.newYScalePercentageInterest(d.value))
-      );
+
   }
 
 }
