@@ -4,7 +4,7 @@ import { debounceTime } from 'rxjs/operators';
 
 import * as d3 from 'd3';
 
-// import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
+import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
 import { M3_OECD_DATA } from '../../../data/M3_OECD';
 import { SP500_DATA } from '../../../data/sp500';
 
@@ -77,12 +77,7 @@ export class OverviewComponent implements OnInit {
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRate2: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRate3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRateAverage: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRateAverage2: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRateAverage3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-
+  // lineInterestRates: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   movingAverageData: any[];
 
   constructor() { }
@@ -207,7 +202,7 @@ export class OverviewComponent implements OnInit {
         .y(yStockAccessor)
       );
 
-    // const lineInterestRates = this.svg
+    // this.lineInterestRates = this.svg
     //   .append('path')
     //   .datum(OECDinterestRatesData)
     //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
@@ -216,8 +211,8 @@ export class OverviewComponent implements OnInit {
     //   .attr('stroke', 'teal')
     //   .attr('stroke-width', 1)
     //   .attr('d', d3.line()
-    //     .x(d => xScale(d.date))
-    //     .y(d => yScalePercentage(d.value))
+    //     .x((d: any) => this.xScale(d.date))
+    //     .y((d: any) => this.yScalePercentage(d.value))
     //   );
 
     const data = await d3.csv('../../../data/FED_funds_rate.csv')
@@ -256,20 +251,20 @@ export class OverviewComponent implements OnInit {
         .call(this.zoom);
 
     // calculates simple moving average over 50 days
-    this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
+    // this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
 
-    this.lineFEDFundsRateAverage = this.svg
-      .append('path')
-      .datum(this.movingAverageData)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'red')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
+    // this.lineFEDFundsRateAverage = this.svg
+    //   .append('path')
+    //   .datum(this.movingAverageData)
+    //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
+    //   .attr('clip-path', 'url(#clip)')
+    //   .attr('fill', 'none')
+    //   .attr('stroke', 'red')
+    //   .attr('stroke-width', 1)
+    //   .attr('d', d3.line()
+    //     .x(xDateAccessor)
+    //     .y(yPercentageInterestAccessor)
+    //   );
 
   }
   // movingAverage(data: DateValue[], numberOfPricePoints: number): any[] {
@@ -333,16 +328,16 @@ export class OverviewComponent implements OnInit {
         .x((d: any) => this.newXScale(d.date))
         .y((d: any) => this.newYScaleStocks(d.value))
       );
-    // lineInterestRates.datum(OECDinterestRatesData)
+    // this.lineInterestRates.datum(OECDinterestRatesData)
     //   .attr('d', d3.line()
-    //     .x(d => this.newXScale(d.date))
-    //     .y(d => newYScalePercentageInterest(d.value))
+    //     .x((d: any) => this.newXScale(d.date))
+    //     .y((d: any) => this.newYScalePercentageInterest(d.value))
     //   );
-    this.lineFEDFundsRateAverage.datum(this.movingAverageData)
-    .attr('d', d3.line()
-      .x((d: any) => this.newXScale(d.date))
-      .y((d: any) => this.newYScalePercentageInterest(d.value))
-    );
+    // this.lineFEDFundsRateAverage.datum(this.movingAverageData)
+    // .attr('d', d3.line()
+    //   .x((d: any) => this.newXScale(d.date))
+    //   .y((d: any) => this.newYScalePercentageInterest(d.value))
+    // );
     this.lineFEDFundsRate.datum(this.FED_FUNDS_RATE_DATA)
       .attr('d', d3.line()
         .x((d: any) => this.newXScale(d.date))
