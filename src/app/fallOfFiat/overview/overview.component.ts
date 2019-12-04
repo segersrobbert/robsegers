@@ -7,6 +7,7 @@ import * as d3 from 'd3';
 import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
 import { M3_OECD_DATA } from '../../../data/M3_OECD';
 import { SP500_DATA } from '../../../data/sp500';
+import { LineGeneratorService } from '../services/line-generator.service';
 
 export interface DateValue {
   date: Date;
@@ -33,12 +34,9 @@ const axisLeftColor = 'darkred';
   styleUrls: ['./overview.component.sass']
 })
 export class OverviewComponent implements OnInit {
-
   // https://bl.ocks.org/mbostock/4015254
   // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
-
   // https://medium.com/netscape/visualizing-data-with-angular-and-d3-209dde784aeb
-
 
   // Sources:
   // M3 money supply: data.oecd.org/money/broad-money-m3.htm
@@ -61,7 +59,7 @@ export class OverviewComponent implements OnInit {
   yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
   yScalePercentage: d3.ScaleLinear<number, number>;
   yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
-  yScalePercentageInterest: d3.ScaleLinear<number, number>;
+  // yScalePercentageInterest: d3.ScaleLinear<number, number>;
 
   yAxisPercentageLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   yAxisInterestLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -82,9 +80,13 @@ export class OverviewComponent implements OnInit {
   // lineInterestRates: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   movingAverageData: any[];
 
-  constructor() { }
+  constructor(
+    private lineGeneratorService: LineGeneratorService
+  ) { }
 
   async ngOnInit() {
+
+    this.lineGeneratorService.generateLine();
 
     this.zoomed$
       .pipe(debounceTime(5))
@@ -109,9 +111,9 @@ export class OverviewComponent implements OnInit {
     this.yScalePercentage = d3.scaleLinear()
       .domain([0, 120])
       .range([height, 0]);
-    this.yScalePercentageInterest = d3.scaleLinear()
-      .domain([0, 20])
-      .range([height, 0]);
+    // this.yScalePercentageInterest = d3.scaleLinear()
+    //   .domain([0, 20])
+    //   .range([height, 0]);
     this.yScaleStocks = d3.scaleLinear()
       .domain([0, 3000])
       .range([height, 0]);
@@ -148,36 +150,6 @@ export class OverviewComponent implements OnInit {
       .attr('class', 'axis-right')
       .style('color', axisRightColor)
       .call(this.yAxisStocks);
-
-    // text label for the x axis
-    this.svg
-      .append('text')
-      .attr('transform', `translate(${svgWidth / 2}, ${height + margin.top + 40})`)
-      .style('text-anchor', 'middle')
-      .text('Time');
-
-    // text label for the left y axis
-    this.svg
-      .append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('y', margin.left + 5)
-      .attr('x', 0 - (height / 2))
-      .attr('dy', '1em')
-      .style('fill', axisLeftColor)
-      .style('text-anchor', 'middle')
-      .text('M3 money supply');
-
-    // text label for the right y axis
-    this.svg
-      .append('text')
-      .attr('transform', `translate(
-        ${svgWidth + margin.left - 25}, ${height / 2}),
-        rotate(-90)`
-      )
-      .attr('dy', '1em')
-      .style('fill', axisRightColor)
-      .style('text-anchor', 'middle')
-      .text('S&P 500 Stock value');
 
     // Line graphs
     this.lineM3 = this.svg
@@ -270,8 +242,44 @@ export class OverviewComponent implements OnInit {
     //     .x(xDateAccessor)
     //     .y(yPercentageInterestAccessor)
     //   );
+    this.initAxisTexts();
 
   }
+
+  initAxisTexts() {
+
+    // text label for the x axis
+    this.svg
+      .append('text')
+      .attr('transform', `translate(${svgWidth / 2}, ${height + margin.top + 40})`)
+      .style('text-anchor', 'middle')
+      .text('Time');
+
+    // text label for the left y axis
+    this.svg
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', margin.left + 5)
+      .attr('x', 0 - (height / 2))
+      .attr('dy', '1em')
+      .style('fill', axisLeftColor)
+      .style('text-anchor', 'middle')
+      .text('M3 money supply');
+
+    // text label for the right y axis
+    this.svg
+      .append('text')
+      .attr('transform', `translate(
+        ${svgWidth + margin.left - 25}, ${height / 2}),
+        rotate(-90)`
+      )
+      .attr('dy', '1em')
+      .style('fill', axisRightColor)
+      .style('text-anchor', 'middle')
+      .text('S&P 500 Stock value');
+
+  }
+
   // movingAverage(data: DateValue[], numberOfPricePoints: number): any[] {
   //   return data.map((row, index, total) => {
   //     const start = Math.max(0, index - numberOfPricePoints);
@@ -304,12 +312,12 @@ export class OverviewComponent implements OnInit {
     if (!d3.event) {
       this.newXScale = this.xScale;
       this.newYScalePercentage = this.yScalePercentage;
-      this.newYScalePercentageInterest = this.yScalePercentageInterest;
+      // this.newYScalePercentageInterest = this.yScalePercentageInterest;
       this.newYScaleStocks = this.yScaleStocks;
     } else {
       this.newXScale = d3.event.transform.rescaleX(this.xScale);
       this.newYScalePercentage = d3.event.transform.rescaleY(this.yScalePercentage);
-      this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
+      // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
       this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleStocks);
     }
     // next onto debounced recalculation
