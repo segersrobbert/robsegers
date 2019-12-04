@@ -24,6 +24,8 @@ const margin = {
   left: Math.max((0.05 * width), 30)
 };
 const pointSize = 10;
+const axisRightColor = 'steelblue';
+const axisLeftColor = 'darkred';
 
 @Component({
   selector: 'app-overview',
@@ -116,13 +118,13 @@ export class OverviewComponent implements OnInit {
 
     const xDateAccessor = d => this.xScale(d.date);
     const yPercentageAccessor = d => this.yScalePercentage(d.value);
-    const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
+    // const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
     const yStockAccessor = d => this.yScaleStocks(d.value);
 
     // Axis objects
     this.xAxis = d3.axisBottom(this.xScale);
     this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
-    this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
+    // this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
     this.yAxisStocks = d3.axisRight(this.yScaleStocks);
 
     // X and Y axis lines
@@ -132,20 +134,19 @@ export class OverviewComponent implements OnInit {
 
     this.yAxisPercentageLine = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .attr('stroke', 'green')
-      .attr('stroke-width', 1)
+      .style('color', axisLeftColor)
       .call(this.yAxisPercentage);
 
-    this.yAxisInterestLine = this.svg.append('g')
-      .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .call(this.yAxisPercentageInterest);
+    // this.yAxisInterestLine = this.svg.append('g')
+    //   .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
+    //   .attr('stroke', axisLeftColor)
+    //   .attr('stroke-width', 1)
+    //   .call(this.yAxisPercentageInterest);
 
     this.yAxisStocksLine = this.svg.append('g')
       .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1)
+      .attr('class', 'axis-right')
+      .style('color', axisRightColor)
       .call(this.yAxisStocks);
 
     // text label for the x axis
@@ -159,19 +160,19 @@ export class OverviewComponent implements OnInit {
     this.svg
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', margin.left - 50)
+      .attr('y', margin.left + 5)
       .attr('x', 0 - (height / 2))
       .attr('dy', '1em')
+      .style('fill', axisLeftColor)
       .style('text-anchor', 'middle')
       .text('Percentage');
 
     // text label for the right y axis
     this.svg
       .append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('y', width - 100)
-      .attr('x', 0 - (height / 2))
+      .attr('transform', `translate(${svgWidth + margin.left - 25}, ${height / 2}), rotate(-90)`)
       .attr('dy', '1em')
+      .style('fill', axisRightColor)
       .style('text-anchor', 'middle')
       .text('Stock value');
 
@@ -182,7 +183,7 @@ export class OverviewComponent implements OnInit {
       .attr('clip-path', 'url(#clip)')
       .datum(M3_OECD_DATA)
       .attr('fill', 'none')
-      .attr('stroke', 'green')
+      .attr('stroke', axisLeftColor)
       .attr('stroke-width', 1)
       .attr('d', d3.line()
         .x(xDateAccessor)
@@ -195,7 +196,7 @@ export class OverviewComponent implements OnInit {
       .attr('transform', `translate(${pointSize}, ${pointSize})`)
       .attr('clip-path', 'url(#clip)')
       .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
+      .attr('stroke', axisRightColor)
       .attr('stroke-width', 1)
       .attr('d', d3.line()
         .x(xDateAccessor)
@@ -215,26 +216,26 @@ export class OverviewComponent implements OnInit {
     //     .y((d: any) => this.yScalePercentage(d.value))
     //   );
 
-    const data = await d3.csv('../../../data/FED_funds_rate.csv')
-    this.FED_FUNDS_RATE_DATA = data.map(entry => {
-      return {
-        date: new Date(entry.date),
-        value: +entry.value
-      } as any;
-    });
+    // const data = await d3.csv('../../../data/FED_funds_rate.csv')
+    // this.FED_FUNDS_RATE_DATA = data.map(entry => {
+    //   return {
+    //     date: new Date(entry.date),
+    //     value: +entry.value
+    //   } as any;
+    // });
 
-    this.lineFEDFundsRate = this.svg
-      .append('path')
-      .datum(this.FED_FUNDS_RATE_DATA)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', 'teal')
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageInterestAccessor)
-      );
+    // this.lineFEDFundsRate = this.svg
+    //   .append('path')
+    //   .datum(this.FED_FUNDS_RATE_DATA)
+    //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
+    //   .attr('clip-path', 'url(#clip)')
+    //   .attr('fill', 'none')
+    //   .attr('stroke', 'teal')
+    //   .attr('stroke-width', 1)
+    //   .attr('d', d3.line()
+    //     .x(xDateAccessor)
+    //     .y(yPercentageInterestAccessor)
+    //   );
 
     // Pan and zoom
     this.zoom = d3.zoom()
@@ -249,6 +250,7 @@ export class OverviewComponent implements OnInit {
         .style('pointer-events', 'all')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(this.zoom);
+
 
     // calculates simple moving average over 50 days
     // this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
@@ -315,7 +317,7 @@ export class OverviewComponent implements OnInit {
     // update axis
     this.xAxisLine.call(this.xAxis.scale(this.newXScale));
     this.yAxisPercentageLine.call(this.yAxisPercentage.scale(this.newYScalePercentage));
-    this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
+    // this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
     this.yAxisStocksLine.call(this.yAxisStocks.scale(this.newYScaleStocks));
 
     this.lineM3.datum(M3_OECD_DATA)
@@ -338,11 +340,11 @@ export class OverviewComponent implements OnInit {
     //   .x((d: any) => this.newXScale(d.date))
     //   .y((d: any) => this.newYScalePercentageInterest(d.value))
     // );
-    this.lineFEDFundsRate.datum(this.FED_FUNDS_RATE_DATA)
-      .attr('d', d3.line()
-        .x((d: any) => this.newXScale(d.date))
-        .y((d: any) => this.newYScalePercentageInterest(d.value))
-      );
+    // this.lineFEDFundsRate.datum(this.FED_FUNDS_RATE_DATA)
+    //   .attr('d', d3.line()
+    //     .x((d: any) => this.newXScale(d.date))
+    //     .y((d: any) => this.newYScalePercentageInterest(d.value))
+    //   );
 
   }
 
