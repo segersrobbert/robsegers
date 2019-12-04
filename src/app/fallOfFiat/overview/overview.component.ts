@@ -165,16 +165,19 @@ export class OverviewComponent implements OnInit {
       .attr('dy', '1em')
       .style('fill', axisLeftColor)
       .style('text-anchor', 'middle')
-      .text('Percentage');
+      .text('M3 money supply');
 
     // text label for the right y axis
     this.svg
       .append('text')
-      .attr('transform', `translate(${svgWidth + margin.left - 25}, ${height / 2}), rotate(-90)`)
+      .attr('transform', `translate(
+        ${svgWidth + margin.left - 25}, ${height / 2}),
+        rotate(-90)`
+      )
       .attr('dy', '1em')
       .style('fill', axisRightColor)
       .style('text-anchor', 'middle')
-      .text('Stock value');
+      .text('S&P 500 Stock value');
 
     // Line graphs
     this.lineM3 = this.svg
@@ -281,20 +284,20 @@ export class OverviewComponent implements OnInit {
   //     };
   //   });
   // }
-  movingAverage(values: DateValue[], N: number) {
-    let i = 0;
-    let sum = 0;
-    const means = [];
-    for (const n = Math.min(N - 1, values.length); i < n; i++) {
-      sum += values[i].value;
-    }
-    for (const n = values.length; i < n; i++) {
-      sum += values[i].value;
-      means.push({ date: values[i].date, value: sum / N });
-      sum -= values[i - N + 1].value;
-    }
-    return means;
-  }
+  // movingAverage(values: DateValue[], N: number) {
+  //   let i = 0;
+  //   let sum = 0;
+  //   const means = [];
+  //   for (const n = Math.min(N - 1, values.length); i < n; i++) {
+  //     sum += values[i].value;
+  //   }
+  //   for (const n = values.length; i < n; i++) {
+  //     sum += values[i].value;
+  //     means.push({ date: values[i].date, value: sum / N });
+  //     sum -= values[i - N + 1].value;
+  //   }
+  //   return means;
+  // }
 
   zoomed() {
     // initial draw
