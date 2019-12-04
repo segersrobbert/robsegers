@@ -28,6 +28,12 @@ const pointSize = 10;
 const axisRightColor = 'steelblue';
 const axisLeftColor = 'darkred';
 
+interface Yaxis {
+  scale: d3.ScaleLinear<number, number>;
+  object: d3.Axis<number | { valueOf(): number }>;
+  line: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+}
+
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
@@ -59,6 +65,15 @@ export class OverviewComponent implements OnInit {
   xAccessor: (d: any) => number;
   yPercentageAccessor: (d: any) => number;
   yStockAccessor: (d: any) => number;
+
+  yAxis: any = {
+    left: {},
+    right: {}
+  };
+  // : {
+  //   left: Yaxis,
+  //   right: any
+  // };
 
   yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
   yScalePercentage: d3.ScaleLinear<number, number>;
@@ -97,14 +112,15 @@ export class OverviewComponent implements OnInit {
     this.svg = d3.select('svg');
     this.createClippingRegion();
     this.createXAxis();
-    this.createYAxis();
+    this.createYAxis('left', axisLeftColor, 0, 120);
+    this.createYAxis('right', axisRightColor, 0, 3000);
     this.initAxisTexts();
     this.setupPanAndZoom();
 
     this.xAccessor = d => this.xScale(d.date);
-    this.yPercentageAccessor = d => this.yScalePercentage(d.value);
+    this.yPercentageAccessor = d => this.yAxis.left.scale(d.value);
     // this.yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
-    this.yStockAccessor = d => this.yScaleStocks(d.value);
+    this.yStockAccessor = d => this.yAxis.right.scale(d.value);
 
     // Line graphs
     this.lineM3 = this.lineGeneratorService.generateLine(
@@ -178,7 +194,7 @@ export class OverviewComponent implements OnInit {
   }
 
 
-  createClippingRegion() {
+  createClippingRegion(): void {
     this.svg.append('defs')
       .append('clipPath')
       .attr('id', 'clip')
@@ -189,7 +205,7 @@ export class OverviewComponent implements OnInit {
       .attr('y', margin.top - 10);
   }
 
-  createXAxis() {
+  createXAxis(): void {
     this.xScale = d3.scaleTime()
       .domain([new Date(1950, 0, 1), new Date()])
       .range([0, svgWidth]);
@@ -201,41 +217,47 @@ export class OverviewComponent implements OnInit {
       .call(this.xAxis);
   }
 
-  createYAxis() {
-    this.yScalePercentage = d3.scaleLinear()
-      .domain([0, 120])
+  createYAxis(
+    side: 'left' | 'right',
+    color: string,
+    domainStart: number,
+    domainEnd: number,
+  ): void {
+    const rightAxis = side === 'right' ? svgWidth : 0;
+    // Y axis scale
+    this.yAxis[side].scale = d3.scaleLinear()
+      .domain([domainStart, domainEnd])
       .range([height, 0]);
+    // Y axis object
+    this.yAxis[side].object = d3.axisLeft(this.yAxis[side].scale);
+    // Y axis line
+    this.yAxis[side].line = this.svg.append('g')
+      .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
+      .style('color', color)
+      .call(this.yAxis[side].object);
+
+    // this.yScaleStocks = d3.scaleLinear()
+    //   .domain([0, 3000])
+    //   .range([height, 0]);
+    // this.yAxisStocks = d3.axisRight(this.yScaleStocks);
+    // this.yAxisStocksLine = this.svg.append('g')
+    //   .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
+    //   .attr('class', 'axis-right')
+    //   .style('color', axisRightColor)
+    //   .call(this.yAxisStocks);
+
     // this.yScalePercentageInterest = d3.scaleLinear()
     //   .domain([0, 20])
     //   .range([height, 0]);
-    this.yScaleStocks = d3.scaleLinear()
-      .domain([0, 3000])
-      .range([height, 0]);
-
-    // Axis objects
-    this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
     // this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
-    this.yAxisStocks = d3.axisRight(this.yScaleStocks);
-
-    // X and Y axis lines
-    this.yAxisPercentageLine = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .style('color', axisLeftColor)
-      .call(this.yAxisPercentage);
     // this.yAxisInterestLine = this.svg.append('g')
     //   .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
     //   .attr('stroke', axisLeftColor)
     //   .attr('stroke-width', 1)
     //   .call(this.yAxisPercentageInterest);
-
-    this.yAxisStocksLine = this.svg.append('g')
-      .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
-      .attr('class', 'axis-right')
-      .style('color', axisRightColor)
-      .call(this.yAxisStocks);
   }
 
-  initAxisTexts() {
+  initAxisTexts(): void {
 
     // text label for the x axis
     this.svg
@@ -296,29 +318,28 @@ export class OverviewComponent implements OnInit {
   //   return means;
   // }
 
-  zoomed() {
+  zoomed(): void {
     // initial draw
     if (!d3.event) {
       this.newXScale = this.xScale;
-      this.newYScalePercentage = this.yScalePercentage;
+      this.newYScalePercentage = this.yAxis.left.scale;
       // this.newYScalePercentageInterest = this.yScalePercentageInterest;
-      this.newYScaleStocks = this.yScaleStocks;
+      this.newYScaleStocks = this.yAxis.right.scale;
     } else {
       this.newXScale = d3.event.transform.rescaleX(this.xScale);
-      this.newYScalePercentage = d3.event.transform.rescaleY(this.yScalePercentage);
+      this.newYScalePercentage = d3.event.transform.rescaleY(this.yAxis.left.scale);
       // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
-      this.newYScaleStocks = d3.event.transform.rescaleY(this.yScaleStocks);
+      this.newYScaleStocks = d3.event.transform.rescaleY(this.yAxis.right.scale);
     }
     // next onto debounced recalculation
     this.zoomed$.next();
   }
 
-  recalculate() {
+  recalculate(): void {
     // update axis
     this.xAxisLine.call(this.xAxis.scale(this.newXScale));
-    this.yAxisPercentageLine.call(this.yAxisPercentage.scale(this.newYScalePercentage));
-    // this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
-    this.yAxisStocksLine.call(this.yAxisStocks.scale(this.newYScaleStocks));
+    this.yAxis.left.line.call(this.yAxis.left.object.scale(this.newYScalePercentage));
+    this.yAxis.right.line.call(this.yAxis.right.object.scale(this.newYScaleStocks));
 
     this.lineM3.datum(M3_OECD_DATA)
       .attr('d', d3.line()
@@ -330,6 +351,9 @@ export class OverviewComponent implements OnInit {
         .x((d: any) => this.newXScale(d.date))
         .y((d: any) => this.newYScaleStocks(d.value))
       );
+
+    // this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
+
     // this.lineInterestRates.datum(OECDinterestRatesData)
     //   .attr('d', d3.line()
     //     .x((d: any) => this.newXScale(d.date))

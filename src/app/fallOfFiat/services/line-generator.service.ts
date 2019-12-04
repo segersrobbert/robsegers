@@ -4,9 +4,7 @@ import * as d3 from 'd3';
 @Injectable({ providedIn: 'root' })
 export class LineGeneratorService {
 
-  constructor() {
-    console.log('Line generator');
-  }
+  constructor() {}
 
   generateLine(
     svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
