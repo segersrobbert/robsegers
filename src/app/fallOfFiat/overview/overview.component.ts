@@ -88,26 +88,18 @@ export class OverviewComponent implements OnInit {
     private lineGeneratorService: LineGeneratorService
   ) { }
 
-  async ngOnInit() {
+  ngOnInit() {
 
     this.zoomed$
       .pipe(debounceTime(5))
       .subscribe(() => this.recalculate());
 
     this.svg = d3.select('svg');
-
-    // clipping region
-    this.svg.append('defs')
-       .append('clipPath')
-       .attr('id', 'clip')
-       .append('rect')
-       .attr('width', svgWidth)
-       .attr('height', height)
-       .attr('x', margin.left - 10)
-       .attr('y', margin.top - 10);
-
+    this.createClippingRegion();
     this.createXAxis();
     this.createYAxis();
+    this.initAxisTexts();
+    this.setupPanAndZoom();
 
     this.xAccessor = d => this.xScale(d.date);
     this.yPercentageAccessor = d => this.yScalePercentage(d.value);
@@ -152,20 +144,6 @@ export class OverviewComponent implements OnInit {
     //     .y(yPercentageInterestAccessor)
     //   );
 
-    // Pan and zoom
-    this.zoom = d3.zoom()
-        .scaleExtent([.5, 20])
-        .extent([[0, 0], [width, height]])
-        .on('zoom', this.zoomed.bind(this));
-
-    this.svg.append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .style('fill', 'none')
-        .style('pointer-events', 'all')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
-        .call(this.zoom);
-
 
     // calculates simple moving average over 50 days
     // this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
@@ -182,12 +160,36 @@ export class OverviewComponent implements OnInit {
     //     .x(xDateAccessor)
     //     .y(yPercentageInterestAccessor)
     //   );
-    this.initAxisTexts();
+  }
 
+  setupPanAndZoom() {
+    this.zoom = d3.zoom()
+      .scaleExtent([.5, 20])
+      .extent([[0, 0], [width, height]])
+      .on('zoom', this.zoomed.bind(this));
+
+    this.svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .call(this.zoom);
+  }
+
+
+  createClippingRegion() {
+    this.svg.append('defs')
+      .append('clipPath')
+      .attr('id', 'clip')
+      .append('rect')
+      .attr('width', svgWidth)
+      .attr('height', height)
+      .attr('x', margin.left - 10)
+      .attr('y', margin.top - 10);
   }
 
   createXAxis() {
-    // scale objects
     this.xScale = d3.scaleTime()
       .domain([new Date(1950, 0, 1), new Date()])
       .range([0, svgWidth]);
