@@ -17,9 +17,7 @@ import {
 })
 export class AppComponent implements AfterViewInit {
 
-  public FALL_OFF_FIAT = 'thefalloffiat';
-  public PLAYGROUND = 'playground';
-  private granimInstance: Granim;
+  granimInstance: Granim;
 
   constructor() {}
 
@@ -31,8 +29,8 @@ export class AppComponent implements AfterViewInit {
       opacity: [1, 1],
       states: {
         'default-state': { gradients: [[teal, cyan]], loop: false, },
-        FALL_OFF_FIAT: { gradients: [[indigo, deepPurple]], loop: false, },
-        PLAYGROUND: { gradients: [[green, lightgreen]], loop: false, },
+        'thefalloffiat': { gradients: [[indigo, deepPurple]], loop: false, },
+        'playground': { gradients: [[green, lightgreen]], loop: false, },
       }
     });
   }
