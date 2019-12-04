@@ -56,6 +56,10 @@ export class OverviewComponent implements OnInit {
   xAxis: d3.Axis<number | Date | { valueOf(): number} >;
   xAxisLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
+  xAccessor: (d: any) => number;
+  yPercentageAccessor: (d: any) => number;
+  yStockAccessor: (d: any) => number;
+
   yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
   yScalePercentage: d3.ScaleLinear<number, number>;
   yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
@@ -86,8 +90,6 @@ export class OverviewComponent implements OnInit {
 
   async ngOnInit() {
 
-    this.lineGeneratorService.generateLine();
-
     this.zoomed$
       .pipe(debounceTime(5))
       .subscribe(() => this.recalculate());
@@ -104,92 +106,30 @@ export class OverviewComponent implements OnInit {
        .attr('x', margin.left - 10)
        .attr('y', margin.top - 10);
 
-    // scale objects
-    this.xScale = d3.scaleTime()
-      .domain([new Date(1950, 0, 1), new Date()])
-      .range([0, svgWidth]);
-    this.yScalePercentage = d3.scaleLinear()
-      .domain([0, 120])
-      .range([height, 0]);
-    // this.yScalePercentageInterest = d3.scaleLinear()
-    //   .domain([0, 20])
-    //   .range([height, 0]);
-    this.yScaleStocks = d3.scaleLinear()
-      .domain([0, 3000])
-      .range([height, 0]);
+    this.createXAxis();
+    this.createYAxis();
 
-    const xDateAccessor = d => this.xScale(d.date);
-    const yPercentageAccessor = d => this.yScalePercentage(d.value);
-    // const yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
-    const yStockAccessor = d => this.yScaleStocks(d.value);
-
-    // Axis objects
-    this.xAxis = d3.axisBottom(this.xScale);
-    this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
-    // this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
-    this.yAxisStocks = d3.axisRight(this.yScaleStocks);
-
-    // X and Y axis lines
-    this.xAxisLine = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
-      .call(this.xAxis);
-
-    this.yAxisPercentageLine = this.svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .style('color', axisLeftColor)
-      .call(this.yAxisPercentage);
-
-    // this.yAxisInterestLine = this.svg.append('g')
-    //   .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
-    //   .attr('stroke', axisLeftColor)
-    //   .attr('stroke-width', 1)
-    //   .call(this.yAxisPercentageInterest);
-
-    this.yAxisStocksLine = this.svg.append('g')
-      .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
-      .attr('class', 'axis-right')
-      .style('color', axisRightColor)
-      .call(this.yAxisStocks);
+    this.xAccessor = d => this.xScale(d.date);
+    this.yPercentageAccessor = d => this.yScalePercentage(d.value);
+    // this.yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
+    this.yStockAccessor = d => this.yScaleStocks(d.value);
 
     // Line graphs
-    this.lineM3 = this.svg
-      .append('path')
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .datum(M3_OECD_DATA)
-      .attr('fill', 'none')
-      .attr('stroke', axisLeftColor)
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yPercentageAccessor)
-      );
+    this.lineM3 = this.lineGeneratorService.generateLine(
+      this.svg,
+      M3_OECD_DATA,
+      axisLeftColor,
+      this.xAccessor,
+      this.yPercentageAccessor
+    );
 
-    this.lineSP500 = this.svg
-      .append('path')
-      .datum(SP500_DATA)
-      .attr('transform', `translate(${pointSize}, ${pointSize})`)
-      .attr('clip-path', 'url(#clip)')
-      .attr('fill', 'none')
-      .attr('stroke', axisRightColor)
-      .attr('stroke-width', 1)
-      .attr('d', d3.line()
-        .x(xDateAccessor)
-        .y(yStockAccessor)
-      );
-
-    // this.lineInterestRates = this.svg
-    //   .append('path')
-    //   .datum(OECDinterestRatesData)
-    //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
-    //   .attr('clip-path', 'url(#clip)')
-    //   .attr('fill', 'none')
-    //   .attr('stroke', 'teal')
-    //   .attr('stroke-width', 1)
-    //   .attr('d', d3.line()
-    //     .x((d: any) => this.xScale(d.date))
-    //     .y((d: any) => this.yScalePercentage(d.value))
-    //   );
+    this.lineSP500 = this.lineGeneratorService.generateLine(
+      this.svg,
+      SP500_DATA,
+      axisRightColor,
+      this.xAccessor,
+      this.yStockAccessor
+    );
 
     // const data = await d3.csv('../../../data/FED_funds_rate.csv')
     // this.FED_FUNDS_RATE_DATA = data.map(entry => {
@@ -244,6 +184,53 @@ export class OverviewComponent implements OnInit {
     //   );
     this.initAxisTexts();
 
+  }
+
+  createXAxis() {
+    // scale objects
+    this.xScale = d3.scaleTime()
+      .domain([new Date(1950, 0, 1), new Date()])
+      .range([0, svgWidth]);
+
+    this.xAxis = d3.axisBottom(this.xScale);
+
+    this.xAxisLine = this.svg.append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
+      .call(this.xAxis);
+  }
+
+  createYAxis() {
+    this.yScalePercentage = d3.scaleLinear()
+      .domain([0, 120])
+      .range([height, 0]);
+    // this.yScalePercentageInterest = d3.scaleLinear()
+    //   .domain([0, 20])
+    //   .range([height, 0]);
+    this.yScaleStocks = d3.scaleLinear()
+      .domain([0, 3000])
+      .range([height, 0]);
+
+    // Axis objects
+    this.yAxisPercentage = d3.axisLeft(this.yScalePercentage);
+    // this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
+    this.yAxisStocks = d3.axisRight(this.yScaleStocks);
+
+    // X and Y axis lines
+    this.yAxisPercentageLine = this.svg.append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
+      .style('color', axisLeftColor)
+      .call(this.yAxisPercentage);
+    // this.yAxisInterestLine = this.svg.append('g')
+    //   .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
+    //   .attr('stroke', axisLeftColor)
+    //   .attr('stroke-width', 1)
+    //   .call(this.yAxisPercentageInterest);
+
+    this.yAxisStocksLine = this.svg.append('g')
+      .attr('transform', `translate(${svgWidth + margin.left}, ${margin.top})`)
+      .attr('class', 'axis-right')
+      .style('color', axisRightColor)
+      .call(this.yAxisStocks);
   }
 
   initAxisTexts() {
