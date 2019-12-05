@@ -223,13 +223,19 @@ export class OverviewComponent implements OnInit {
     domainStart: number,
     domainEnd: number,
   ): void {
+    let axisWidthSurplus = 0;
+    let axisObjectCreationOp = d3.axisLeft;
+    if (side === 'right') {
+      axisWidthSurplus = svgWidth;
+      axisObjectCreationOp = d3.axisRight;
+    }
     const rightAxis = side === 'right' ? svgWidth : 0;
     // Y axis scale
     this.yAxis[side].scale = d3.scaleLinear()
       .domain([domainStart, domainEnd])
       .range([height, 0]);
     // Y axis object
-    this.yAxis[side].object = d3.axisLeft(this.yAxis[side].scale);
+    this.yAxis[side].object = axisObjectCreationOp(this.yAxis[side].scale);
     // Y axis line
     this.yAxis[side].line = this.svg.append('g')
       .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
