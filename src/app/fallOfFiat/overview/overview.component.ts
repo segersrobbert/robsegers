@@ -7,7 +7,7 @@ import * as d3 from 'd3';
 import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
 import { M3_OECD_DATA } from '../../../data/M3_OECD';
 import { SP500_DATA } from '../../../data/sp500';
-import { LineGeneratorService } from '../services/line-generator.service';
+import { ShapeGeneratorService } from '../services/shape-generator.service';
 
 export interface DateValue {
   date: Date;
@@ -92,10 +92,14 @@ export class OverviewComponent implements OnInit {
   // line graphs
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+  // lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
+
+  rect: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
+  allCharts: any;
+
 
   constructor(
-    private lineGeneratorService: LineGeneratorService
+    private shapeGeneratorService: ShapeGeneratorService
   ) { }
 
   ngOnInit() {
@@ -118,7 +122,7 @@ export class OverviewComponent implements OnInit {
     this.yStockAccessor = d => this.yAxis.right.scale(d.value);
 
     // Line graphs
-    this.lineM3 = this.lineGeneratorService.generateLine(
+    this.lineM3 = this.shapeGeneratorService.generateLine(
       this.svg,
       M3_OECD_DATA,
       axisLeftColor,
@@ -126,12 +130,19 @@ export class OverviewComponent implements OnInit {
       this.yPercentageAccessor
     );
 
-    this.lineSP500 = this.lineGeneratorService.generateLine(
+    this.lineSP500 = this.shapeGeneratorService.generateLine(
       this.svg,
       SP500_DATA,
       axisRightColor,
       this.xAccessor,
       this.yStockAccessor
+    );
+
+    this.allCharts = this.shapeGeneratorService.generateRect(
+      this.svg,
+      this.xScale,
+      100, 100,
+      100, 100
     );
 
   }
@@ -267,6 +278,23 @@ export class OverviewComponent implements OnInit {
         .x((d: any) => this.newXScale(d.date))
         .y((d: any) => this.newYScaleStocks(d.value))
       );
+
+    // this.rect.datum(SP500_DATA)
+    //   .attr('d', d3.line()
+    //     .x((d: any) => this.newXScale(d.date))
+    //     .y((d: any) => this.newYScaleStocks(d.value))
+    //   );
+
+    const spanX = (d) => this.newXScale(d3.isoParse(d.start));
+    const spanW = (d) => this.newXScale(d3.isoParse(d.end)) - this.newXScale(d3.isoParse(d.start));
+
+    // const transform = d3.event.transform;
+    //     globalX.call xAxis.scale(transform.rescaleX(x))
+    this.allCharts.selectAll('rect')
+          .attr('x', (d: any) => d3.event.transform.applyX(spanX(d)))
+          .attr('width', (d: any) => d3.event.transform.k * spanW(d));
+
+
   }
 
 }
