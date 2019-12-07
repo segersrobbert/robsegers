@@ -24,7 +24,6 @@ const margin = {
   bottom: (0.05 * height),
   left: Math.max((0.05 * width), 30)
 };
-const pointSize = 10;
 const axisRightColor = 'steelblue';
 const axisLeftColor = 'darkred';
 
@@ -52,11 +51,9 @@ export class OverviewComponent implements OnInit {
     // ATTRIBUTION: Proper attribution requires clear indication of the data source as "www.macrotrends.net".
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
-  FED_FUNDS_RATE_DATA: any;
-
-  zoomed$: Subject<void> = new Subject();
-  zoom: d3.ZoomBehavior<Element, unknown>;
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+  zoom: d3.ZoomBehavior<Element, unknown>; // actual zoom
+  zoomed$: Subject<void> = new Subject(); // debounce recalc
 
   xScale: d3.ScaleTime<number, number>;
   xAxis: d3.Axis<number | Date | { valueOf(): number} >;
@@ -96,8 +93,6 @@ export class OverviewComponent implements OnInit {
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  // lineInterestRates: d3.Selection<SVGPathElement, any, HTMLElement, any>;
-  movingAverageData: any[];
 
   constructor(
     private lineGeneratorService: LineGeneratorService
@@ -139,43 +134,6 @@ export class OverviewComponent implements OnInit {
       this.yStockAccessor
     );
 
-    // const data = await d3.csv('../../../data/FED_funds_rate.csv')
-    // this.FED_FUNDS_RATE_DATA = data.map(entry => {
-    //   return {
-    //     date: new Date(entry.date),
-    //     value: +entry.value
-    //   } as any;
-    // });
-
-    // this.lineFEDFundsRate = this.svg
-    //   .append('path')
-    //   .datum(this.FED_FUNDS_RATE_DATA)
-    //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
-    //   .attr('clip-path', 'url(#clip)')
-    //   .attr('fill', 'none')
-    //   .attr('stroke', 'teal')
-    //   .attr('stroke-width', 1)
-    //   .attr('d', d3.line()
-    //     .x(xDateAccessor)
-    //     .y(yPercentageInterestAccessor)
-    //   );
-
-
-    // calculates simple moving average over 50 days
-    // this.movingAverageData = this.movingAverage(this.FED_FUNDS_RATE_DATA, 49);
-
-    // this.lineFEDFundsRateAverage = this.svg
-    //   .append('path')
-    //   .datum(this.movingAverageData)
-    //   .attr('transform', `translate(${pointSize}, ${pointSize})`)
-    //   .attr('clip-path', 'url(#clip)')
-    //   .attr('fill', 'none')
-    //   .attr('stroke', 'red')
-    //   .attr('stroke-width', 1)
-    //   .attr('d', d3.line()
-    //     .x(xDateAccessor)
-    //     .y(yPercentageInterestAccessor)
-    //   );
   }
 
   setupPanAndZoom() {
@@ -185,12 +143,12 @@ export class OverviewComponent implements OnInit {
       .on('zoom', this.zoomed.bind(this));
 
     this.svg.append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .style('fill', 'none')
-        .style('pointer-events', 'all')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
-        .call(this.zoom);
+      .attr('width', width)
+      .attr('height', height)
+      .style('fill', 'none')
+      .style('pointer-events', 'all')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
+      .call(this.zoom);
   }
 
 
@@ -225,11 +183,12 @@ export class OverviewComponent implements OnInit {
   ): void {
     let axisWidthSurplus = 0;
     let axisObjectCreationOp = d3.axisLeft;
+    let rightAxis = 0;
     if (side === 'right') {
       axisWidthSurplus = svgWidth;
       axisObjectCreationOp = d3.axisRight;
+      rightAxis = svgWidth;
     }
-    const rightAxis = side === 'right' ? svgWidth : 0;
     // Y axis scale
     this.yAxis[side].scale = d3.scaleLinear()
       .domain([domainStart, domainEnd])
@@ -241,39 +200,16 @@ export class OverviewComponent implements OnInit {
       .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
       .style('color', color)
       .call(this.yAxis[side].object);
-
-    // this.yScaleStocks = d3.scaleLinear()
-    //   .domain([0, 3000])
-    //   .range([height, 0]);
-    // this.yAxisStocks = d3.axisRight(this.yScaleStocks);
-    // this.yAxisStocksLine = this.svg.append('g')
-    //   .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
-    //   .attr('class', 'axis-right')
-    //   .style('color', axisRightColor)
-    //   .call(this.yAxisStocks);
-
-    // this.yScalePercentageInterest = d3.scaleLinear()
-    //   .domain([0, 20])
-    //   .range([height, 0]);
-    // this.yAxisPercentageInterest = d3.axisLeft(this.yScalePercentageInterest);
-    // this.yAxisInterestLine = this.svg.append('g')
-    //   .attr('transform', `translate(${margin.left + 25}, ${margin.top})`)
-    //   .attr('stroke', axisLeftColor)
-    //   .attr('stroke-width', 1)
-    //   .call(this.yAxisPercentageInterest);
   }
 
   initAxisTexts(): void {
-
-    // text label for the x axis
-    this.svg
+    this.svg // text label for the x axis
       .append('text')
       .attr('transform', `translate(${svgWidth / 2}, ${height + margin.top + 40})`)
       .style('text-anchor', 'middle')
       .text('Time');
 
-    // text label for the left y axis
-    this.svg
+    this.svg // text label for the left y axis
       .append('text')
       .attr('transform', 'rotate(-90)')
       .attr('y', margin.left + 5)
@@ -294,35 +230,9 @@ export class OverviewComponent implements OnInit {
       .style('fill', axisRightColor)
       .style('text-anchor', 'middle')
       .text('S&P 500 Stock value');
-
   }
 
-  // movingAverage(data: DateValue[], numberOfPricePoints: number): any[] {
-  //   return data.map((row, index, total) => {
-  //     const start = Math.max(0, index - numberOfPricePoints);
-  //     const end = index;
-  //     const subset = total.slice(start, end + 1);
-  //     const sum = subset.reduce((a, b) => a + b['value'], 0);
-  //     return {
-  //       date: row['date'],
-  //       value: sum / subset.length
-  //     };
-  //   });
-  // }
-  // movingAverage(values: DateValue[], N: number) {
-  //   let i = 0;
-  //   let sum = 0;
-  //   const means = [];
-  //   for (const n = Math.min(N - 1, values.length); i < n; i++) {
-  //     sum += values[i].value;
-  //   }
-  //   for (const n = values.length; i < n; i++) {
-  //     sum += values[i].value;
-  //     means.push({ date: values[i].date, value: sum / N });
-  //     sum -= values[i - N + 1].value;
-  //   }
-  //   return means;
-  // }
+
 
   zoomed(): void {
     // initial draw
@@ -357,25 +267,6 @@ export class OverviewComponent implements OnInit {
         .x((d: any) => this.newXScale(d.date))
         .y((d: any) => this.newYScaleStocks(d.value))
       );
-
-    // this.yAxisInterestLine.call(this.yAxisPercentageInterest.scale(this.newYScalePercentageInterest));
-
-    // this.lineInterestRates.datum(OECDinterestRatesData)
-    //   .attr('d', d3.line()
-    //     .x((d: any) => this.newXScale(d.date))
-    //     .y((d: any) => this.newYScalePercentageInterest(d.value))
-    //   );
-    // this.lineFEDFundsRateAverage.datum(this.movingAverageData)
-    // .attr('d', d3.line()
-    //   .x((d: any) => this.newXScale(d.date))
-    //   .y((d: any) => this.newYScalePercentageInterest(d.value))
-    // );
-    // this.lineFEDFundsRate.datum(this.FED_FUNDS_RATE_DATA)
-    //   .attr('d', d3.line()
-    //     .x((d: any) => this.newXScale(d.date))
-    //     .y((d: any) => this.newYScalePercentageInterest(d.value))
-    //   );
-
   }
 
 }
