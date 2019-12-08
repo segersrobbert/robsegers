@@ -1,0 +1,14 @@
+id,start,end,count,authors,description
+id1,1943,1963,1,"S. Luria*, M. Delbrück*","Mutation is spontaneous and random (pre-adaptive), not directed (post-adaptive)"
+id2,1945,1963,1,S. Luria*,Viruses can mutate so as to be able to successfully infect previously resistant bacteria
+id3,1946,1963,1,"A. Hershey*, M. Delbrück*",Two viruses can genetically recombine when co-infecting the same cell
+id5,1951,1963,1,V. Freeman,"Viruses can contribute to bacterial virulence (e.g., by encoding diphtheria toxin)"
+id6,1952,1963,1,"A. Hershey*, M. Chase","DNA, not protein, is unambiguously the hereditary material of life"
+id7,1952,1963,2,"N. Zinder, J. Lederberg*",Viruses can transfer DNA between cells (transduction)
+id8,1952,1963,3,"S. Luria*, M. Human","Once adapted to a particular host, viruses’ ability to infect other hosts is greatly diminished (this “restriction” was later shown to result from restriction enzymes)"
+id9,1955,1963,1,S. Benzer,The sequence of a gene is linear; recombination can occur between adjacent nucleotides
+id11,1961,1963,1,"F. Crick*, L. Barnett, S. Brenner*, R. Watts-Tobin",Nucleotides are read three units at a time (as codons) to form proteins
+id12,1961,1963,2,"S. Brenner*, F. Jacob*, M. Meselson",mRNA is the intermediate between DNA and protein; mRNA is translated into protein by ribosomes
+id14,1967,1975,1,M. Gellert (and other laboratories),DNA ligase joins together DNA fragments
+id15,1967,1975,2,"M. Goulian, A. Kornberg*, R. Sinsheimer",DNA can be synthesized from its precursors in vitro
+id16,1969,1975,1,"R. Okazaki, T. Okazaki, K. Sakabe, K. Sugimoto, A. Sugino",Lagging strand DNA synthesis is discontinuous

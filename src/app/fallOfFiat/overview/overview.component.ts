@@ -102,7 +102,7 @@ export class OverviewComponent implements OnInit {
     private shapeGeneratorService: ShapeGeneratorService
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
 
     this.zoomed$
       .pipe(debounceTime(5))
@@ -138,12 +138,24 @@ export class OverviewComponent implements OnInit {
       this.yStockAccessor
     );
 
-    this.allCharts = this.shapeGeneratorService.generateRect(
-      this.svg,
-      this.xScale,
-      100, 100,
-      100, 100
-    );
+    const data = await d3.csv('../../../data/page-history.csv');
+    const svgEnter = this.svg.selectAll('rect')
+      .data(data)
+      .enter();
+    svgEnter.append('rect')
+      .attr('x', d => this.xScale(new Date(d.start)))
+      .attr('y', height)
+      .attr('width', (d: any) => d.end - d.start)
+      .attr('height', 25)
+      .attr('fill', 'green');
+
+    // this.allCharts = this.shapeGeneratorService.generateRect(
+    //   this.svg,
+    //   this.xScale,
+    //   100, 100,
+    //   100, 100
+    // );
+    // console.log("TCL: OverviewComponent -> ngOnInit -> this.allCharts", this.allCharts)
 
   }
 
@@ -290,9 +302,9 @@ export class OverviewComponent implements OnInit {
 
     // const transform = d3.event.transform;
     //     globalX.call xAxis.scale(transform.rescaleX(x))
-    this.allCharts.selectAll('rect')
-          .attr('x', (d: any) => d3.event.transform.applyX(spanX(d)))
-          .attr('width', (d: any) => d3.event.transform.k * spanW(d));
+    // this.allCharts.selectAll('rect')
+    //       .attr('x', (d: any) => d3.event.transform.applyX(spanX(d)))
+    //       .attr('width', (d: any) => d3.event.transform.k * spanW(d));
 
 
   }
