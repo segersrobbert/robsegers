@@ -94,9 +94,7 @@ export class OverviewComponent implements OnInit {
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   // lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
 
-  rect: d3.Selection<SVGRectElement, unknown, HTMLElement, any>;
-  allCharts: any;
-
+  svgEnter: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
 
   constructor(
     private shapeGeneratorService: ShapeGeneratorService
@@ -139,23 +137,15 @@ export class OverviewComponent implements OnInit {
     );
 
     const data = await d3.csv('../../../data/page-history.csv');
-    const svgEnter = this.svg.selectAll('rect')
+    this.svgEnter = this.svg.selectAll('rect')
       .data(data)
-      .enter();
-    svgEnter.append('rect')
+      .enter()
+      .append('rect')
       .attr('x', d => this.xScale(new Date(d.start)))
       .attr('y', height)
       .attr('width', (d: any) => d.end - d.start)
       .attr('height', 25)
       .attr('fill', 'green');
-
-    // this.allCharts = this.shapeGeneratorService.generateRect(
-    //   this.svg,
-    //   this.xScale,
-    //   100, 100,
-    //   100, 100
-    // );
-    // console.log("TCL: OverviewComponent -> ngOnInit -> this.allCharts", this.allCharts)
 
   }
 
@@ -291,21 +281,8 @@ export class OverviewComponent implements OnInit {
         .y((d: any) => this.newYScaleStocks(d.value))
       );
 
-    // this.rect.datum(SP500_DATA)
-    //   .attr('d', d3.line()
-    //     .x((d: any) => this.newXScale(d.date))
-    //     .y((d: any) => this.newYScaleStocks(d.value))
-    //   );
-
-    const spanX = (d) => this.newXScale(d3.isoParse(d.start));
-    const spanW = (d) => this.newXScale(d3.isoParse(d.end)) - this.newXScale(d3.isoParse(d.start));
-
-    // const transform = d3.event.transform;
-    //     globalX.call xAxis.scale(transform.rescaleX(x))
-    // this.allCharts.selectAll('rect')
-    //       .attr('x', (d: any) => d3.event.transform.applyX(spanX(d)))
-    //       .attr('width', (d: any) => d3.event.transform.k * spanW(d));
-
+    this.svgEnter.attr('x', (d: any) =>
+      this.newXScale(new Date(d.start)));
 
   }
 
