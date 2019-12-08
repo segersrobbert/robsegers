@@ -136,16 +136,33 @@ export class OverviewComponent implements OnInit {
       this.yStockAccessor
     );
 
+    const tooltip = d3.select('body')
+      .append('div')
+      .style('font-size', '12px')
+      .style('width', '285px')
+      .style('position', 'absolute')
+      .style('top', '225px')
+      .style('left', '40px');
+
+    const spanW = d => this.xScale(d3.isoParse(d.end)) - this.xScale(d3.isoParse(d.start));
+    const spanX = d => this.xScale(d3.isoParse(d.start));
+
     const data = await d3.csv('../../../data/page-history.csv');
     this.svgEnter = this.svg.selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
-      .attr('x', d => this.xScale(new Date(d.start)))
+      .attr('x', d => spanX(d))
       .attr('y', height)
-      .attr('width', (d: any) => d.end - d.start)
+      .attr('width', d => spanW(d))
       .attr('height', 25)
-      .attr('fill', 'green');
+      .attr('fill', 'green')
+      .style('opacity', 0.4)
+      .attr('stroke-width', '1px')
+      .attr('stroke', 'black')
+      .on('mouseover', (d: any) => {
+        tooltip.html(d.currency + '<br>' + d.country);
+      });
 
   }
 
@@ -281,8 +298,12 @@ export class OverviewComponent implements OnInit {
         .y((d: any) => this.newYScaleStocks(d.value))
       );
 
-    this.svgEnter.attr('x', (d: any) =>
-      this.newXScale(new Date(d.start)));
+    const spanW = d => this.newXScale(d3.isoParse(d.end)) - this.newXScale(d3.isoParse(d.start));
+    const spanX = d => this.newXScale(d3.isoParse(d.start));
+
+    this.svgEnter
+      .attr('x', (d: any) => spanX(d))
+      .attr('width', (d: any) => spanW(d));
 
   }
 
