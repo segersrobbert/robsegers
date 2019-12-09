@@ -148,8 +148,18 @@ export class OverviewComponent implements OnInit {
     const spanX = d => this.xScale(d3.isoParse(d.start));
 
     const data = await d3.csv('../../../data/reserveCurrencies.csv');
-    this.currencies = this.svg.selectAll('rect')
+    this.currencies = this.svg
+      // .select('#reserveCurrencies')
+      .selectAll('rect') // 2
+      // .filter(function (d, i) {
+      //   console.log("TCL: OverviewComponent -> ngOnInit -> d", d, i)
+      //   return false;
+      //   // return !this.classList.contains('setup')
+      // })
       .data(data)
+      // enter identifies any elements that need to be added
+      // when the data array is longer than the selection
+      // beware: there are already 2 rects on the svg (pan & clipping area)
       .enter()
       .append('rect')
       .attr('x', d => spanX(d))
@@ -158,11 +168,11 @@ export class OverviewComponent implements OnInit {
       .attr('height', 50)
       .attr('fill', 'green')
       .style('opacity', 0.2)
-      .attr('stroke-width', '1px')
+      .attr('stroke-width', '2px')
       .attr('stroke', 'black')
       .on('mouseover', d => tooltip.html(
-        `Reserve currency: ${d.currency} <br> Country: ${d.country}`)
-      )
+        `Reserve currency: ${d.currency} <br> Country: ${d.country}`
+      ))
       .on('mouseout', () => tooltip.html(''));
 
     // this.currencies
@@ -183,8 +193,8 @@ export class OverviewComponent implements OnInit {
       .scaleExtent([.05, 100])
       .extent([[0, 0], [width, height]])
       .on('zoom', this.zoomed.bind(this));
-
     this.svg.append('rect')
+      .attr('class', 'setup')
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
@@ -193,12 +203,12 @@ export class OverviewComponent implements OnInit {
       .call(this.zoom);
   }
 
-
   createClippingRegion(): void {
     this.svg.append('defs')
       .append('clipPath')
       .attr('id', 'clip')
       .append('rect')
+      .attr('class', 'setup')
       .attr('width', svgWidth)
       .attr('height', height)
       .attr('x', margin.left - 10)
@@ -275,7 +285,6 @@ export class OverviewComponent implements OnInit {
   }
 
 
-
   zoomed(): void {
     // initial draw
     if (!d3.event) {
@@ -288,12 +297,18 @@ export class OverviewComponent implements OnInit {
       this.newYScalePercentage = d3.event.transform.rescaleY(this.yAxis.left.scale);
       this.newYScaleStocks = d3.event.transform.rescaleY(this.yAxis.right.scale);
 
+      // const newXScaleYearDomain = this.newXScale.domain();
+      // const maxXYear = Math.min(2100, newXScaleYearDomain[1].getFullYear());
+      // this.newXScale.domain([newXScaleYearDomain[0], new Date(maxXYear)]);
+
       // force minimum Y scale to 0
       const newYScalePercentageDomain = this.newYScalePercentage.domain();
-      this.newYScalePercentage.domain([0, newYScalePercentageDomain[1]]);
+      const maxYPercentage = Math.min(140, newYScalePercentageDomain[1]);
+      this.newYScalePercentage.domain([0, maxYPercentage]);
 
       const newYScaleStocksDomain = this.newYScaleStocks.domain();
-      this.newYScaleStocks.domain([0, newYScaleStocksDomain[1]]);
+      const maxYStocks = Math.min(3500, newYScaleStocksDomain[1]);
+      this.newYScaleStocks.domain([0, maxYStocks]);
 
       // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
     }
