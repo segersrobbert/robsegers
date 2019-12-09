@@ -48,7 +48,7 @@ export class OverviewComponent implements OnInit {
   // SP500 stocks: https://finance.yahoo.com/quote/%5EGSPC/history
   // OECD interest rates: https://data.oecd.org/interest/long-term-interest-rates.htm#indicator-chart
   // FED funds rate: https://www.macrotrends.net/2015/fed-funds-rate-historical-chart
-    // ATTRIBUTION: Proper attribution requires clear indication of the data source as "www.macrotrends.net".
+    // ATTRIBUTION: Proper attribution requires clear indication of the data source as 'www.macrotrends.net'.
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
   svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
@@ -94,7 +94,7 @@ export class OverviewComponent implements OnInit {
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   // lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
 
-  svgEnter: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
+  currencies: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
 
   constructor(
     private shapeGeneratorService: ShapeGeneratorService
@@ -109,8 +109,8 @@ export class OverviewComponent implements OnInit {
     this.svg = d3.select('svg');
     this.createClippingRegion();
     this.createXAxis();
-    this.createYAxis('left', axisLeftColor, 0, 120);
-    this.createYAxis('right', axisRightColor, 0, 3000);
+    this.createYAxis('left', axisLeftColor, 0, 140);
+    this.createYAxis('right', axisRightColor, 0, 3500);
     this.initAxisTexts();
     this.setupPanAndZoom();
 
@@ -147,28 +147,40 @@ export class OverviewComponent implements OnInit {
     const spanW = d => this.xScale(d3.isoParse(d.end)) - this.xScale(d3.isoParse(d.start));
     const spanX = d => this.xScale(d3.isoParse(d.start));
 
-    const data = await d3.csv('../../../data/page-history.csv');
-    this.svgEnter = this.svg.selectAll('rect')
+    const data = await d3.csv('../../../data/reserveCurrencies.csv');
+    this.currencies = this.svg.selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
       .attr('x', d => spanX(d))
-      .attr('y', height)
-      .attr('width', d => spanW(d))
-      .attr('height', 25)
+      .attr('y', height - 25)
+      .attr('width', d => Math.abs(spanW(d)))
+      .attr('height', 50)
       .attr('fill', 'green')
-      .style('opacity', 0.4)
+      .style('opacity', 0.2)
       .attr('stroke-width', '1px')
       .attr('stroke', 'black')
-      .on('mouseover', (d: any) => {
-        tooltip.html(d.currency + '<br>' + d.country);
-      });
+      .on('mouseover', d => tooltip.html(
+        `Reserve currency: ${d.currency} <br> Country: ${d.country}`)
+      )
+      .on('mouseout', () => tooltip.html(''));
+
+    // this.currencies
+    //   .data(data)
+    //   .enter()
+    //   .append('text')
+    //   .attr('x', d => {
+    //     console.log('TCL: OverviewComponent -> ngOnInit -> d', d)
+    //     return spanX(d)
+    //   })
+    //   .attr('y', 25)
+    //   .text(d => d.currency)
 
   }
 
   setupPanAndZoom() {
     this.zoom = d3.zoom()
-      .scaleExtent([.5, 20])
+      .scaleExtent([.05, 100])
       .extent([[0, 0], [width, height]])
       .on('zoom', this.zoomed.bind(this));
 
@@ -195,7 +207,7 @@ export class OverviewComponent implements OnInit {
 
   createXAxis(): void {
     this.xScale = d3.scaleTime()
-      .domain([new Date(1950, 0, 1), new Date()])
+      .domain([new Date(1960, 0, 1), new Date()])
       .range([0, svgWidth]);
 
     this.xAxis = d3.axisBottom(this.xScale);
@@ -274,8 +286,16 @@ export class OverviewComponent implements OnInit {
     } else {
       this.newXScale = d3.event.transform.rescaleX(this.xScale);
       this.newYScalePercentage = d3.event.transform.rescaleY(this.yAxis.left.scale);
-      // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
       this.newYScaleStocks = d3.event.transform.rescaleY(this.yAxis.right.scale);
+
+      // force minimum Y scale to 0
+      const newYScalePercentageDomain = this.newYScalePercentage.domain();
+      this.newYScalePercentage.domain([0, newYScalePercentageDomain[1]]);
+
+      const newYScaleStocksDomain = this.newYScaleStocks.domain();
+      this.newYScaleStocks.domain([0, newYScaleStocksDomain[1]]);
+
+      // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
     }
     // next onto debounced recalculation
     this.zoomed$.next();
@@ -301,9 +321,9 @@ export class OverviewComponent implements OnInit {
     const spanW = d => this.newXScale(d3.isoParse(d.end)) - this.newXScale(d3.isoParse(d.start));
     const spanX = d => this.newXScale(d3.isoParse(d.start));
 
-    this.svgEnter
+    this.currencies
       .attr('x', (d: any) => spanX(d))
-      .attr('width', (d: any) => spanW(d));
+      .attr('width', (d: any) => Math.abs(spanW(d)));
 
   }
 
