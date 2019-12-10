@@ -95,6 +95,8 @@ export class OverviewComponent implements OnInit {
   // lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
 
   currencies: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
+  rectWidth: (d: any) => number;
+  rectX: (d: any) => number;
 
   constructor(
     private shapeGeneratorService: ShapeGeneratorService
@@ -144,27 +146,33 @@ export class OverviewComponent implements OnInit {
       .style('top', '225px')
       .style('left', '40px');
 
-    const spanW = d => this.xScale(d3.isoParse(d.end)) - this.xScale(d3.isoParse(d.start));
-    const spanX = d => this.xScale(d3.isoParse(d.start));
+    this.rectWidth = d => this.xScale(new Date(d.end)) - this.xScale(new Date(d.start));
+    this.rectX = d => this.xScale(new Date(d.start));
 
     const data = await d3.csv('../../../data/reserveCurrencies.csv');
+    // -401,0,Silver Drachme,Greece
+    // 1,399,Aureus,Rome
+    // 401,599,Solidus,Byzantium
+    // 601,999,Dinar,Arabia
     this.currencies = this.svg
-      // .select('#reserveCurrencies')
-      .selectAll('rect') // 2
-      // .filter(function (d, i) {
-      //   console.log("TCL: OverviewComponent -> ngOnInit -> d", d, i)
-      //   return false;
-      //   // return !this.classList.contains('setup')
-      // })
+      .selectAll('rect')
+      // there are setup rects on the svg (pan & clipping area)
+      // that need to be filtered out from the selection
+      // use ES5 filter function to have 'this' refer to the current DOM element
+      .filter(function (d, i) {
+        if ((this as HTMLElement).classList.contains('setup')) {
+          return false;
+        }
+        return true;
+      })
       .data(data)
       // enter identifies any elements that need to be added
       // when the data array is longer than the selection
-      // beware: there are already 2 rects on the svg (pan & clipping area)
       .enter()
       .append('rect')
-      .attr('x', d => spanX(d))
+      .attr('x', d => this.rectX(d))
       .attr('y', height - 25)
-      .attr('width', d => Math.abs(spanW(d)))
+      .attr('width', d => Math.abs(this.rectWidth(d)))
       .attr('height', 50)
       .attr('fill', 'green')
       .style('opacity', 0.2)
@@ -175,16 +183,14 @@ export class OverviewComponent implements OnInit {
       ))
       .on('mouseout', () => tooltip.html(''));
 
-    // this.currencies
-    //   .data(data)
-    //   .enter()
-    //   .append('text')
-    //   .attr('x', d => {
-    //     console.log('TCL: OverviewComponent -> ngOnInit -> d', d)
-    //     return spanX(d)
-    //   })
-    //   .attr('y', 25)
-    //   .text(d => d.currency)
+    console.log(this.currencies)
+      // .append('text')
+      // .attr('x', d => {
+      //   console.log('TCL: OverviewComponent -> ngOnInit -> d', d)
+      //   return spanX(d)
+      // })
+      // .attr('y', 25)
+      // .text(d => d.currency)
 
   }
 
@@ -194,7 +200,7 @@ export class OverviewComponent implements OnInit {
       .extent([[0, 0], [width, height]])
       .on('zoom', this.zoomed.bind(this));
     this.svg.append('rect')
-      .attr('class', 'setup')
+      .attr('class', 'setup panZoom')
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
@@ -208,7 +214,7 @@ export class OverviewComponent implements OnInit {
       .append('clipPath')
       .attr('id', 'clip')
       .append('rect')
-      .attr('class', 'setup')
+      .attr('class', 'setup clippingRegion')
       .attr('width', svgWidth)
       .attr('height', height)
       .attr('x', margin.left - 10)
@@ -333,12 +339,9 @@ export class OverviewComponent implements OnInit {
         .y((d: any) => this.newYScaleStocks(d.value))
       );
 
-    const spanW = d => this.newXScale(d3.isoParse(d.end)) - this.newXScale(d3.isoParse(d.start));
-    const spanX = d => this.newXScale(d3.isoParse(d.start));
-
     this.currencies
-      .attr('x', (d: any) => spanX(d))
-      .attr('width', (d: any) => Math.abs(spanW(d)));
+      .attr('x', d => this.rectX(d))
+      .attr('width', d => this.rectWidth(d));
 
   }
 

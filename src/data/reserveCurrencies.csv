@@ -1,8 +1,4 @@
 start,end,currency,country
--401,0,Silver Drachme,Greece
-1,399,Aureus,Rome
-401,599,Solidus,Byzantium
-601,999,Dinar,Arabia
 1301,1449,Fiorino,Florence
 1450,1529,Portugal,gold
 1530,1641,Real,Spain
