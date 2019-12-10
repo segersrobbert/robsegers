@@ -95,8 +95,8 @@ export class OverviewComponent implements OnInit {
   // lineFEDFundsRate: d3.Selection<SVGPathElement, any, HTMLElement, any>;
 
   currencies: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
-  rectWidth: (d: any) => number;
-  rectX: (d: any) => number;
+  determineWidth: (d: any) => number;
+  determineX: (d: any) => number;
 
   constructor(
     private shapeGeneratorService: ShapeGeneratorService
@@ -138,59 +138,14 @@ export class OverviewComponent implements OnInit {
       this.yStockAccessor
     );
 
-    const tooltip = d3.select('body')
-      .append('div')
-      .style('font-size', '12px')
-      .style('width', '285px')
-      .style('position', 'absolute')
-      .style('top', '225px')
-      .style('left', '40px');
-
-    this.rectWidth = d => this.xScale(new Date(d.end)) - this.xScale(new Date(d.start));
-    this.rectX = d => this.xScale(new Date(d.start));
-
-    const data = await d3.csv('../../../data/reserveCurrencies.csv');
-    // -401,0,Silver Drachme,Greece
-    // 1,399,Aureus,Rome
-    // 401,599,Solidus,Byzantium
-    // 601,999,Dinar,Arabia
-    this.currencies = this.svg
-      .selectAll('rect')
-      // there are setup rects on the svg (pan & clipping area)
-      // that need to be filtered out from the selection
-      // use ES5 filter function to have 'this' refer to the current DOM element
-      .filter(function (d, i) {
-        if ((this as HTMLElement).classList.contains('setup')) {
-          return false;
-        }
-        return true;
-      })
-      .data(data)
-      // enter identifies any elements that need to be added
-      // when the data array is longer than the selection
-      .enter()
-      .append('rect')
-      .attr('x', d => this.rectX(d))
-      .attr('y', height - 25)
-      .attr('width', d => Math.abs(this.rectWidth(d)))
-      .attr('height', 50)
-      .attr('fill', 'green')
-      .style('opacity', 0.2)
-      .attr('stroke-width', '2px')
-      .attr('stroke', 'black')
-      .on('mouseover', d => tooltip.html(
-        `Reserve currency: ${d.currency} <br> Country: ${d.country}`
-      ))
-      .on('mouseout', () => tooltip.html(''));
-
-    console.log(this.currencies)
-      // .append('text')
-      // .attr('x', d => {
-      //   console.log('TCL: OverviewComponent -> ngOnInit -> d', d)
-      //   return spanX(d)
-      // })
-      // .attr('y', 25)
-      // .text(d => d.currency)
+    const currenciesData = await d3.csv('../../../data/reserveCurrencies.csv');
+    this.currencies = this.shapeGeneratorService.createCurrencyRects(
+      this.svg,
+      height,
+      currenciesData,
+      this.determineWidth,
+      this.determineX
+    );
 
   }
 
@@ -231,6 +186,9 @@ export class OverviewComponent implements OnInit {
     this.xAxisLine = this.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
       .call(this.xAxis);
+
+    this.determineWidth = d => this.xScale(new Date(d.end)) - this.xScale(new Date(d.start));
+    this.determineX = d => this.xScale(new Date(d.start));
   }
 
   createYAxis(
@@ -303,6 +261,9 @@ export class OverviewComponent implements OnInit {
       this.newYScalePercentage = d3.event.transform.rescaleY(this.yAxis.left.scale);
       this.newYScaleStocks = d3.event.transform.rescaleY(this.yAxis.right.scale);
 
+      this.determineWidth = d => this.newXScale(new Date(d.end)) - this.newXScale(new Date(d.start));
+      this.determineX = d => this.newXScale(new Date(d.start));
+
       // const newXScaleYearDomain = this.newXScale.domain();
       // const maxXYear = Math.min(2100, newXScaleYearDomain[1].getFullYear());
       // this.newXScale.domain([newXScaleYearDomain[0], new Date(maxXYear)]);
@@ -340,8 +301,8 @@ export class OverviewComponent implements OnInit {
       );
 
     this.currencies
-      .attr('x', d => this.rectX(d))
-      .attr('width', d => this.rectWidth(d));
+      .attr('x', (d: any) => this.determineX(d))
+      .attr('width', (d: any) => this.determineWidth(d));
 
   }
 
