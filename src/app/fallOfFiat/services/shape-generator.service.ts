@@ -43,7 +43,8 @@ export class ShapeGeneratorService {
       .style('left', '40px');
 
     // http://bl.ocks.org/TBD/600b23e56545026ae6fda2905efa42ce
-    return svg.selectAll('rect')
+    const currencies = svg
+    .selectAll('rect')
       // there are setup rects on the svg (pan & clipping area)
       // that need to be filtered out from the selection
       // use ES5 filter function to have 'this' refer to the current DOM element
@@ -60,6 +61,10 @@ export class ShapeGeneratorService {
       .append('rect')
       .attr('x', d => determineX(d))
       .attr('y', height - 25)
+      // .attr('transform', d => `translate(
+      //   ${determineX(d)},
+      //   ${height - 25})`
+      // )
       .attr('width', d => determineWidth(d))
       .attr('height', 50)
       .attr('fill', 'green')
@@ -70,7 +75,8 @@ export class ShapeGeneratorService {
         `Reserve currency: ${d.currency} <br> Country: ${d.country}`
       ))
       .on('mouseout', () => tooltip.html(''));
-
+    console.log("TCL: ShapeGeneratorService -> constructor -> currencies", currencies)
+    return currencies;
       // .append('text')
       // .attr('x', d => {
       //   console.log('TCL: OverviewComponent -> ngOnInit -> d', d)
