@@ -61,27 +61,3 @@
   @extend .navigation-menuitem;
   &:hover { color: $green; }
 }
-
-// GRANIM
-.logo-liquidgradient-wrapper {
-  position: relative;
-  width: 240px;
-  height: 35px;
-}
-
-.logo-liquidgradient-wrapper canvas,
-.logo-liquidgradient-wrapper .logo-liquidgradient-mask {
-  display: block;
-  width: 240px;
-  height: 35px;
-}
-
-.logo-liquidgradient-wrapper .logo-liquidgradient-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-size: 240px;
-  background-image: url("../assets/img/frontline-logo.png");
-  text-indent: -9999px;
-}
-
