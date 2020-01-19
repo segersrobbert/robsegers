@@ -1,5 +1,5 @@
 import { Component, AfterViewInit } from '@angular/core';
-import * as Granim from 'Granim';
+// import * as Granim from 'Granim';
 
 import {
   teal,
@@ -23,25 +23,24 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit() {
 
-    this.granimInstance = new Granim({
-      element: '#js-logo-liquidgradient-canvas',
-      direction: 'left-right',
-      opacity: [1, 1],
-      states: {
-        'default-state': { gradients: [[teal, cyan]], loop: false, },
-        'thefalloffiat': { gradients: [[indigo, deepPurple]], loop: false, },
-        'playground': { gradients: [[green, lightgreen]], loop: false, },
-      }
-    });
+    // this.granimInstance = new Granim({
+    //   element: '#js-logo-liquidgradient-canvas',
+    //   direction: 'left-right',
+    //   opacity: [1, 1],
+    //   states: {
+    //     'default-state': { gradients: [[teal, cyan]], loop: false, },
+    //     'thefalloffiat': { gradients: [[indigo, deepPurple]], loop: false, },
+    //     'playground': { gradients: [[green, lightgreen]], loop: false, },
+    //   }
+    // });
   }
 
   changeHeaderState(state: string) {
-    // 
-    this.granimInstance.changeState(state);
+    // this.granimInstance.changeState(state);
   }
 
   setGranimState(state: string) {
-    this.granimInstance.changeState(state);
+    // this.granimInstance.changeState(state);
   }
 
 }
