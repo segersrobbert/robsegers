@@ -66,16 +66,13 @@ export class ShapeGeneratorService {
       //   ${height - 25})`
       // )
       .attr('width', d => determineWidth(d))
-      .attr('height', 50)
-      .attr('fill', 'green')
-      .style('opacity', 0.2)
-      .attr('stroke-width', '2px')
-      .attr('stroke', 'black')
+      .attr('height', 51)
+      .attr('fill', '#33691E')
+      .style('opacity', 0.5)
       .on('mouseover', (d: any) => tooltip.html(
         `Reserve currency: ${d.currency} <br> Country: ${d.country}`
       ))
       .on('mouseout', () => tooltip.html(''));
-    console.log("TCL: ShapeGeneratorService -> constructor -> currencies", currencies)
     return currencies;
       // .append('text')
       // .attr('x', d => {
@@ -84,7 +81,6 @@ export class ShapeGeneratorService {
       // })
       // .attr('y', 25)
       // .text(d => d.currency)
-
   }
 
 }

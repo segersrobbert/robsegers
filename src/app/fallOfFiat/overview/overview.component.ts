@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import * as d3 from 'd3';
@@ -8,6 +7,7 @@ import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
 import { M3_OECD_DATA } from '../../../data/M3_OECD';
 import { SP500_DATA } from '../../../data/sp500';
 import { ShapeGeneratorService } from '../services/shape-generator.service';
+import { GraphService } from '../services/graph-utility.service';
 
 export interface DateValue {
   date: Date;
@@ -51,44 +51,6 @@ export class OverviewComponent implements OnInit {
     // ATTRIBUTION: Proper attribution requires clear indication of the data source as 'www.macrotrends.net'.
     // A "dofollow" backlink to the originating page is also required if the data is displayed on a web page.
 
-  svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
-  zoom: d3.ZoomBehavior<Element, unknown>; // actual zoom
-  zoomed$: Subject<void> = new Subject(); // debounce recalc
-
-  xScale: d3.ScaleTime<number, number>;
-  xAxis: d3.Axis<number | Date | { valueOf(): number} >;
-  xAxisLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-
-  xAccessor: (d: any) => number;
-  yPercentageAccessor: (d: any) => number;
-  yStockAccessor: (d: any) => number;
-
-  yAxis: any = {
-    left: {},
-    right: {}
-  };
-  // : {
-  //   left: Yaxis,
-  //   right: any
-  // };
-
-  yAxisPercentage: d3.Axis<number | { valueOf(): number }>;
-  yScalePercentage: d3.ScaleLinear<number, number>;
-  yAxisPercentageInterest: d3.Axis<number | { valueOf(): number }>;
-  // yScalePercentageInterest: d3.ScaleLinear<number, number>;
-
-  yAxisPercentageLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  yAxisInterestLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  yScaleStocks: d3.ScaleLinear<number, number>;
-  yAxisStocksLine: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-  yAxisStocks: d3.Axis<number | { valueOf(): number }>;
-
-  // new scales, calculated after zoom
-  newXScale: d3.ScaleTime<number, number>;
-  newYScalePercentage: d3.ScaleLinear<number, number>;
-  newYScalePercentageInterest: d3.ScaleLinear<number, number>;
-  newYScaleStocks: d3.ScaleLinear<number, number>;
-
   // line graphs
   lineM3: d3.Selection<SVGPathElement, any, HTMLElement, any>;
   lineSP500: d3.Selection<SVGPathElement, any, HTMLElement, any>;
@@ -99,16 +61,17 @@ export class OverviewComponent implements OnInit {
   determineX: (d: any) => number;
 
   constructor(
-    private shapeGeneratorService: ShapeGeneratorService
+    private shapeGeneratorService: ShapeGeneratorService,
+    private graphService: GraphService
   ) { }
 
   async ngOnInit() {
 
-    this.zoomed$
+    this.graphService.zoomed$
       .pipe(debounceTime(5))
       .subscribe(() => this.recalculate());
 
-    this.svg = d3.select('svg');
+    this.graphService.svg = d3.select('svg');
     this.createClippingRegion();
     this.createXAxis();
     this.createYAxis('left', axisLeftColor, 0, 140);
@@ -116,31 +79,31 @@ export class OverviewComponent implements OnInit {
     this.initAxisTexts();
     this.setupPanAndZoom();
 
-    this.xAccessor = d => this.xScale(d.date);
-    this.yPercentageAccessor = d => this.yAxis.left.scale(d.value);
+    this.graphService.xAccessor = d => this.graphService.xScale(d.date);
+    this.graphService.yPercentageAccessor = d => this.graphService.yAxis.left.scale(d.value);
     // this.yPercentageInterestAccessor = d => this.yScalePercentageInterest(d.value);
-    this.yStockAccessor = d => this.yAxis.right.scale(d.value);
+    this.graphService.yStockAccessor = d => this.graphService.yAxis.right.scale(d.value);
 
     // Line graphs
     this.lineM3 = this.shapeGeneratorService.generateLine(
-      this.svg,
+      this.graphService.svg,
       M3_OECD_DATA,
       axisLeftColor,
-      this.xAccessor,
-      this.yPercentageAccessor
+      this.graphService.xAccessor,
+      this.graphService.yPercentageAccessor
     );
 
     this.lineSP500 = this.shapeGeneratorService.generateLine(
-      this.svg,
+      this.graphService.svg,
       SP500_DATA,
       axisRightColor,
-      this.xAccessor,
-      this.yStockAccessor
+      this.graphService.xAccessor,
+      this.graphService.yStockAccessor
     );
 
     const currenciesData = await d3.csv('../../../data/reserveCurrencies.csv');
     this.currencies = this.shapeGeneratorService.createCurrencyRects(
-      this.svg,
+      this.graphService.svg,
       height,
       currenciesData,
       this.determineWidth,
@@ -150,22 +113,22 @@ export class OverviewComponent implements OnInit {
   }
 
   setupPanAndZoom() {
-    this.zoom = d3.zoom()
+    this.graphService.zoom = d3.zoom()
       .scaleExtent([.05, 100])
       .extent([[0, 0], [width, height]])
       .on('zoom', this.zoomed.bind(this));
-    this.svg.append('rect')
+    this.graphService.svg.append('rect')
       .attr('class', 'setup panZoom')
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
       .style('pointer-events', 'all')
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .call(this.zoom);
+      .call(this.graphService.zoom);
   }
 
   createClippingRegion(): void {
-    this.svg.append('defs')
+    this.graphService.svg.append('defs')
       .append('clipPath')
       .attr('id', 'clip')
       .append('rect')
@@ -177,18 +140,18 @@ export class OverviewComponent implements OnInit {
   }
 
   createXAxis(): void {
-    this.xScale = d3.scaleTime()
+    this.graphService.xScale = d3.scaleTime()
       .domain([new Date(1960, 0, 1), new Date()])
       .range([0, svgWidth]);
 
-    this.xAxis = d3.axisBottom(this.xScale);
+    this.graphService.xAxis = d3.axisBottom(this.graphService.xScale);
 
-    this.xAxisLine = this.svg.append('g')
+    this.graphService.xAxisLine = this.graphService.svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top + height})`)
-      .call(this.xAxis);
+      .call(this.graphService.xAxis);
 
-    this.determineWidth = d => this.xScale(new Date(d.end)) - this.xScale(new Date(d.start));
-    this.determineX = d => this.xScale(new Date(d.start));
+    this.determineWidth = d => this.graphService.xScale(new Date(d.end)) - this.graphService.xScale(new Date(d.start));
+    this.determineX = d => this.graphService.xScale(new Date(d.start));
   }
 
   createYAxis(
@@ -206,26 +169,26 @@ export class OverviewComponent implements OnInit {
       rightAxis = svgWidth;
     }
     // Y axis scale
-    this.yAxis[side].scale = d3.scaleLinear()
+    this.graphService.yAxis[side].scale = d3.scaleLinear()
       .domain([domainStart, domainEnd])
       .range([height, 0]);
     // Y axis object
-    this.yAxis[side].object = axisObjectCreationOp(this.yAxis[side].scale);
+    this.graphService.yAxis[side].object = axisObjectCreationOp(this.graphService.yAxis[side].scale);
     // Y axis line
-    this.yAxis[side].line = this.svg.append('g')
+    this.graphService.yAxis[side].line = this.graphService.svg.append('g')
       .attr('transform', `translate(${rightAxis + margin.left}, ${margin.top})`)
       .style('color', color)
-      .call(this.yAxis[side].object);
+      .call(this.graphService.yAxis[side].object);
   }
 
   initAxisTexts(): void {
-    this.svg // text label for the x axis
+    this.graphService.svg // text label for the x axis
       .append('text')
       .attr('transform', `translate(${svgWidth / 2}, ${height + margin.top + 40})`)
       .style('text-anchor', 'middle')
       .text('Time');
 
-    this.svg // text label for the left y axis
+    this.graphService.svg // text label for the left y axis
       .append('text')
       .attr('transform', 'rotate(-90)')
       .attr('y', margin.left + 5)
@@ -236,7 +199,7 @@ export class OverviewComponent implements OnInit {
       .text('M3 money supply');
 
     // text label for the right y axis
-    this.svg
+    this.graphService.svg
       .append('text')
       .attr('transform', `translate(
         ${svgWidth + margin.left - 25}, ${height / 2}),
@@ -252,52 +215,59 @@ export class OverviewComponent implements OnInit {
   zoomed(): void {
     // initial draw
     if (!d3.event) {
-      this.newXScale = this.xScale;
-      this.newYScalePercentage = this.yAxis.left.scale;
+      this.graphService.newXScale = this.graphService.xScale;
+      this.graphService.newYScalePercentage = this.graphService.yAxis.left.scale;
       // this.newYScalePercentageInterest = this.yScalePercentageInterest;
-      this.newYScaleStocks = this.yAxis.right.scale;
+      this.graphService.newYScaleStocks = this.graphService.yAxis.right.scale;
     } else {
-      this.newXScale = d3.event.transform.rescaleX(this.xScale);
-      this.newYScalePercentage = d3.event.transform.rescaleY(this.yAxis.left.scale);
-      this.newYScaleStocks = d3.event.transform.rescaleY(this.yAxis.right.scale);
+      this.graphService.newXScale = d3.event.transform.rescaleX(this.graphService.xScale);
+      this.graphService.newYScalePercentage = d3.event.transform.rescaleY(this.graphService.yAxis.left.scale);
+      this.graphService.newYScaleStocks = d3.event.transform.rescaleY(this.graphService.yAxis.right.scale);
 
-      this.determineWidth = d => this.newXScale(new Date(d.end)) - this.newXScale(new Date(d.start));
-      this.determineX = d => this.newXScale(new Date(d.start));
+      this.determineWidth = d =>
+        this.graphService.newXScale(new Date(d.end)) - this.graphService.newXScale(new Date(d.start));
+      this.determineX = d => this.graphService.newXScale(new Date(d.start));
 
-      // const newXScaleYearDomain = this.newXScale.domain();
+      // const newXScaleYearDomain = this.graphUtilityService.newXScale.domain();
       // const maxXYear = Math.min(2100, newXScaleYearDomain[1].getFullYear());
-      // this.newXScale.domain([newXScaleYearDomain[0], new Date(maxXYear)]);
+      // this.graphUtilityService.newXScale.domain([newXScaleYearDomain[0], new Date(maxXYear)]);
 
       // force minimum Y scale to 0
-      const newYScalePercentageDomain = this.newYScalePercentage.domain();
+      const newYScalePercentageDomain = this.graphService.newYScalePercentage.domain();
       const maxYPercentage = Math.min(140, newYScalePercentageDomain[1]);
-      this.newYScalePercentage.domain([0, maxYPercentage]);
+      this.graphService.newYScalePercentage.domain([0, maxYPercentage]);
 
-      const newYScaleStocksDomain = this.newYScaleStocks.domain();
+      const newYScaleStocksDomain = this.graphService.newYScaleStocks.domain();
       const maxYStocks = Math.min(3500, newYScaleStocksDomain[1]);
-      this.newYScaleStocks.domain([0, maxYStocks]);
+      this.graphService.newYScaleStocks.domain([0, maxYStocks]);
 
       // this.newYScalePercentageInterest = d3.event.transform.rescaleY(this.yScalePercentageInterest);
     }
     // next onto debounced recalculation
-    this.zoomed$.next();
+    this.graphService.zoomed$.next();
   }
 
   recalculate(): void {
     // update axis
-    this.xAxisLine.call(this.xAxis.scale(this.newXScale));
-    this.yAxis.left.line.call(this.yAxis.left.object.scale(this.newYScalePercentage));
-    this.yAxis.right.line.call(this.yAxis.right.object.scale(this.newYScaleStocks));
+    this.graphService.xAxisLine.call(
+      this.graphService.xAxis.scale(this.graphService.newXScale)
+    );
+    this.graphService.yAxis.left.line.call(
+      this.graphService.yAxis.left.object.scale(this.graphService.newYScalePercentage)
+    );
+    this.graphService.yAxis.right.line.call(
+      this.graphService.yAxis.right.object.scale(this.graphService.newYScaleStocks)
+    );
 
     this.lineM3.datum(M3_OECD_DATA)
       .attr('d', d3.line()
-        .x((d: any) => this.newXScale(d.date))
-        .y((d: any) => this.newYScalePercentage(d.value))
+        .x((d: any) => this.graphService.newXScale(d.date))
+        .y((d: any) => this.graphService.newYScalePercentage(d.value))
       );
     this.lineSP500.datum(SP500_DATA)
       .attr('d', d3.line()
-        .x((d: any) => this.newXScale(d.date))
-        .y((d: any) => this.newYScaleStocks(d.value))
+        .x((d: any) => this.graphService.newXScale(d.date))
+        .y((d: any) => this.graphService.newYScaleStocks(d.value))
       );
 
     this.currencies
