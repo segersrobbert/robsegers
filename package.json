@@ -2,7 +2,7 @@
   "name": "robsegers",
   "version": "0.0.1",
   "scripts": {
-    "serve": "ng serve",
+    "serve": "ng serve --port 5000",
     "start": "node server.js",
     "start-prod": "ng serve --configuration=production",
     "build": "ng build",
