@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
+import { GraphService } from './graph-utility.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShapeGeneratorService {
 
-  constructor() { }
+  constructor(
+    private graphService: GraphService
+  ) { }
 
   generateLine(
-    svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
     data: any,
     color: string,
     xAccessor: (d: any) => number,
     yAccessor: (d: any) => number
   ): d3.Selection<SVGPathElement, any, HTMLElement, any> {
+
+    const svg = this.graphService.getSvg();
+
     return svg
       .append('path')
       .attr('transform', `translate(10, 10)`)
@@ -28,12 +33,13 @@ export class ShapeGeneratorService {
   }
 
   createCurrencyRects(
-    svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
     height,
     data: any,
     determineWidth,
     determineX
   ): any {
+    const svg = this.graphService.getSvg();
+
     const tooltip = d3.select('body')
       .append('div')
       .style('font-size', '12px')
