@@ -33,10 +33,10 @@ export class ShapeGeneratorService {
   }
 
   createCurrencyRects(
-    height,
-    data: any,
-    determineWidth,
-    determineX
+    height: number,
+    data: d3.DSVRowArray<string>,
+    determineWidth: (d: any) => number,
+    determineX: (d: any) => number,
   ): any {
     const svg = this.graphService.getSvg();
 
@@ -50,7 +50,7 @@ export class ShapeGeneratorService {
 
     // http://bl.ocks.org/TBD/600b23e56545026ae6fda2905efa42ce
     const currencies = svg
-    .selectAll('rect')
+      .selectAll('rect')
       // there are setup rects on the svg (pan & clipping area)
       // that need to be filtered out from the selection
       // use ES5 filter function to have 'this' refer to the current DOM element

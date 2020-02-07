@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime } from 'rxjs/internal/operators/debounceTime';
-
 import * as d3 from 'd3';
+
 import {
-  axisLeftColor, axisRightColor, height, svgWidth, margin, width
+  axisLeftColor,
+  axisRightColor,
+  height,
+  width,
+  svgWidth,
+  margin,
 } from './graph-constants';
 
 @Injectable({ providedIn: 'root' })
 export class GraphService {
 
-  svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
-  zoom: d3.ZoomBehavior<Element, unknown>; // actual zoom
-  zoomed$: Subject<void> = new Subject(); // debounce recalc
+  private svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+  private zoom: d3.ZoomBehavior<Element, unknown>; // actual zoom
+  private zoomed$: Subject<void> = new Subject(); // debounce recalc
 
   xScale: d3.ScaleTime<number, number>;
   xAxis: d3.Axis<number | Date | { valueOf(): number} >;
@@ -51,17 +56,18 @@ export class GraphService {
   determineWidth: (d: any) => number;
   determineX: (d: any) => number;
 
-  dataPerSelection: Map<
+  dataPerLine: Map<
     d3.Selection<any, any, any, any>,
     {data: any, yScale: string}>
   = new Map<
     d3.Selection<any, any, any, any>,
     {data: any, yScale: string}>();
 
-  constructor() {
+  rectsToRecalculate: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>[] = [];
 
+  constructor() {
     this.zoomed$
-      .pipe(debounceTime(5))
+      .pipe(debounceTime(3))
       .subscribe(() => this.recalculate());
   }
 
@@ -149,8 +155,7 @@ export class GraphService {
       .style('text-anchor', 'middle')
       .text('M3 money supply');
 
-    // text label for the right y axis
-    this.svg
+    this.svg // text label for the right y axis
       .append('text')
       .attr('transform', `translate(
         ${svgWidth + margin.left - 25}, ${height / 2}),
@@ -190,7 +195,7 @@ export class GraphService {
       this.yAxis.right.object.scale(this.newYScaleStocks)
     );
 
-    this.dataPerSelection.forEach(
+    this.dataPerLine.forEach(
       (dataYScale, selection) => {
         selection.datum(dataYScale.data)
           .attr('d', d3.line()
@@ -200,9 +205,11 @@ export class GraphService {
       }
     );
 
-    // this.currencies
-    //   .attr('x', (d: any) => this.determineX(d))
-    //   .attr('width', (d: any) => this.determineWidth(d));
+    this.rectsToRecalculate.forEach(
+      rectSelection => rectSelection
+        .attr('x', d => this.determineX(d))
+        .attr('width', d => this.determineWidth(d))
+    );
 
   }
 
@@ -241,13 +248,21 @@ export class GraphService {
     this.zoomed$.next();
   }
 
-  setToRecalculate(
-    selection: d3.Selection<any, any, any, any>,
+  setToRecalculateLine(
+    lineSelection: d3.Selection<any, any, any, any>,
     data: any,
     yScale: string
   ) {
-    this.dataPerSelection.set(
-      selection, { data, yScale }
+    this.dataPerLine.set(
+      lineSelection, { data, yScale }
+    );
+  }
+
+  setToRecalculateRects(
+    rectSelection: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>,
+  ) {
+    this.rectsToRecalculate.push(
+      rectSelection
     );
   }
 

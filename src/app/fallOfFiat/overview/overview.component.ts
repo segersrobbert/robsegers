@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-
+import {
+  Component,
+  OnInit
+} from '@angular/core';
 import * as d3 from 'd3';
 
 import { OECDinterestRatesData } from '../../../data/OECD_interest_rates';
@@ -8,13 +10,12 @@ import { SP500_DATA } from '../../../data/sp500';
 import { ShapeGeneratorService } from '../services/shape-generator.service';
 import { GraphService } from '../services/graph-utility.service';
 import {
-  axisLeftColor, axisRightColor, height
+  axisLeftColor,
+  axisRightColor,
+  height
 } from '../services/graph-constants';
 
-export interface DateValue {
-  date: Date;
-  value: number;
-}
+export interface DateValue { date: Date; value: number; }
 
 interface Yaxis {
   scale: d3.ScaleLinear<number, number>;
@@ -47,7 +48,6 @@ export class OverviewComponent implements OnInit {
 
   currencies: d3.Selection<d3.EnterElement, d3.DSVRowString<string>, d3.BaseType, unknown>;
 
-
   constructor(
     private shapeGeneratorService: ShapeGeneratorService,
     private graphService: GraphService
@@ -69,7 +69,7 @@ export class OverviewComponent implements OnInit {
       this.graphService.xAccessor,
       this.graphService.yPercentageAccessor
     );
-    this.graphService.setToRecalculate(
+    this.graphService.setToRecalculateLine(
       this.lineM3,
       M3_OECD_DATA,
       'newYScalePercentage'
@@ -81,7 +81,7 @@ export class OverviewComponent implements OnInit {
       this.graphService.xAccessor,
       this.graphService.yStockAccessor
     );
-    this.graphService.setToRecalculate(
+    this.graphService.setToRecalculateLine(
       this.lineSP500,
       SP500_DATA,
       'newYScaleStocks'
@@ -91,6 +91,11 @@ export class OverviewComponent implements OnInit {
     this.currencies = this.shapeGeneratorService.createCurrencyRects(
       height,
       currenciesData,
+      this.graphService.determineWidth,
+      this.graphService.determineX
+    );
+    this.graphService.setToRecalculateRects(
+      this.currencies,
       this.graphService.determineWidth,
       this.graphService.determineX
     );
