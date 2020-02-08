@@ -95,9 +95,7 @@ export class OverviewComponent implements OnInit {
       this.graphService.determineX
     );
     this.graphService.setToRecalculateRects(
-      this.currencies,
-      this.graphService.determineWidth,
-      this.graphService.determineX
+      this.currencies
     );
 
   }
