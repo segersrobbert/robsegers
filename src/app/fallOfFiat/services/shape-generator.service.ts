@@ -66,6 +66,10 @@ export class ShapeGeneratorService {
       .enter()
       .append('rect')
       .attr('x', d => determineX(d))
+      .attr('stroke', '#6A1B9A')
+      .attr('stroke-width', 2)
+      .attr('stroke-opacity', 0.6)
+      .attr('stroke-alignment', 'inner')
       .attr('y', height - 25)
       // .attr('transform', d => `translate(
       //   ${determineX(d)},
@@ -73,8 +77,8 @@ export class ShapeGeneratorService {
       // )
       .attr('width', d => determineWidth(d))
       .attr('height', 51)
-      .attr('fill', '#33691E')
-      .style('opacity', 0.5)
+      .attr('fill', '#6A1B9A')
+      .style('fill-opacity', 0.3)
       .on('mouseover', (d: any) => tooltip.html(
         `Reserve currency: ${d.currency} <br> Country: ${d.country}`
       ))
